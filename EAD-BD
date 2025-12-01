@@ -1,1 +1,4 @@
 -- projeto banco de dados II
+CREATE TABLE Usuario(
+
+);
