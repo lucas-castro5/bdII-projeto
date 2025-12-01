@@ -9,3 +9,33 @@ create table usuario(
 	tipo_usuario VARCHAR(20) CHECK (tipo_usuario IN('aluno','professor','coordenador','responsavel','administrador')),
 	data_cadastro DATE
 );
+
+create table aluno(
+	id_aluno INT PRIMARY KEY REFERENCES usuario(id_aluno),
+	matricula VARCHAR(15) UNIQUE,
+	data_nascimento DATE,
+	ano_ingresso INT,
+	status_aluno VARCHAR(20) CHECK (status_aluno IN('ativo','trancado','concluido')),
+	fk_id_responsavel INT
+);
+
+create table responsavel(
+	id_responsavel INT PRIMARY KEY REFERENCES usuario(id_usuario),
+	parentesco VARCHAR(50)
+);
+
+ALTER TABLE aluno
+ADD CONSTRAINT fk_aluno_responsavel
+  FOREIGN KEY (fk_id_responsavel) REFERENCES responsavel(id_responsavel);
+
+
+create table professor(
+	id_professor INT PRIMARY KEY,
+	carga_horario_semanal INT,
+	qtd_alunos_max INT,
+	especialidade VARCHAR(100)
+);
+
+create table coordenador(
+	id_
+)
