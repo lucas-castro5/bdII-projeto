@@ -29,9 +29,9 @@ Slides de apresentação.
 
 📂 Estrutura (resumo)
 /modelagem
-/sql_base
-/populacao_consultas
-/recursos_avancados
+/sql
+/Consultas e Inserts
+/Recursos Avançados
 /relatorio
 
 👥 Integrantes
