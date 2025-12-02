@@ -1,0 +1,353 @@
+1) Tabela usuario
+
+Esta tabela guarda todos os usuários do sistema, independentemente do tipo (aluno, professor, coordenador, responsável ou administrador).
+
+O que faz cada campo:
+
+id_usuario INT PRIMARY KEY
+Identificador único do usuário no sistema.
+
+nome VARCHAR(100)
+Nome completo do usuário.
+
+cpf VARCHAR(11)
+CPF armazenado com 11 caracteres.
+
+email VARCHAR(50)
+E-mail de contato ou login.
+
+senha VARCHAR(200)
+Senha do usuário (neste caso armazenada diretamente conforme seu código).
+
+telefone VARCHAR(15)
+Telefone de contato.
+
+tipo_usuario VARCHAR(20) CHECK (...)
+Define qual categoria o usuário pertence.
+O CHECK permite apenas:
+aluno, professor, coordenador, responsavel, administrador.
+
+data_cadastro DATE
+Armazena a data em que o usuário foi registrado.
+
+O que as regras fazem:
+
+PRIMARY KEY garante que cada usuário tenha um ID único.
+
+CHECK impede valores inválidos em tipo_usuario.
+
+2) Tabela responsavel
+
+Armazena dados específicos de um usuário que é responsável (pai, mãe, tutor etc.).
+
+Campos:
+
+id_responsavel INT PRIMARY KEY REFERENCES usuario(id_usuario)
+Usa o mesmo ID da tabela usuario, garantindo que só exista responsável se também existir como usuário.
+
+parentesco VARCHAR(50)
+Tipo de parentesco com o aluno.
+
+Regras:
+
+A FK amarra o responsável diretamente ao seu registro de usuário.
+
+3) Tabela aluno
+
+Guarda informações exclusivas de alunos.
+
+Campos:
+
+id_aluno INT PRIMARY KEY
+Identificador do aluno, é o mesmo ID do usuário correspondente.
+
+matricula VARCHAR(20) UNIQUE
+Código único de matrícula do aluno.
+
+data_nascimento DATE
+Data de nascimento.
+
+ano_ingresso INT
+Ano em que o aluno entrou no sistema.
+
+status_aluno VARCHAR(20) CHECK (...)
+Situação atual do aluno: ativo, trancado ou concluído.
+
+id_responsavel INT
+Pessoa responsável pelo aluno.
+
+Regras:
+
+fk_aluno_usuario
+Garante que o aluno exista primeiro na tabela usuario.
+ON DELETE CASCADE remove o aluno se o usuário correspondente for apagado.
+
+fk_aluno_responsavel
+Garante que o responsável exista na tabela responsavel.
+
+4) Tabela professor
+
+Armazena dados específicos dos professores.
+
+Campos:
+
+id_professor INT PRIMARY KEY
+Mesmo ID usado no usuário.
+
+carga_horaria_semanal INT
+Quantidade de horas semanais de trabalho.
+
+qtd_alunos_max INT
+Número máximo de alunos que o professor pode gerenciar.
+
+especialidade VARCHAR(80)
+Área do conhecimento do professor.
+
+Regras:
+
+fk_prof_usuario
+Garante que o professor seja também um usuário.
+ON DELETE CASCADE exclui o professor se o usuário for apagado.
+
+5) Tabela coordenador
+
+Armazena dados específicos do coordenador.
+
+Campos:
+
+id_coordenador INT PRIMARY KEY
+Mesmo ID usado no usuário.
+
+departamento VARCHAR(80)
+Departamento do coordenador.
+
+Regras:
+
+fk_coord_usuario
+Obriga que o coordenador exista como usuário.
+ON DELETE CASCADE também remove o coordenador se deletar o usuário.
+
+6) Tabela turma
+
+Representa cada turma disponível no sistema.
+
+Campos:
+
+id_turma SERIAL PRIMARY KEY
+Identificador gerado automaticamente.
+
+nome_turma VARCHAR(50) NOT NULL
+Nome da turma.
+
+ano_letivo INT NOT NULL
+Ano correspondente à turma.
+
+turno VARCHAR(10) CHECK (... )
+Aceita apenas: manhã, tarde ou noite.
+
+status_turma VARCHAR(10) CHECK (... )
+Aceita apenas: ativa ou inativa.
+
+Regras:
+
+Os CHECK garantem que turno e status tenham valores válidos.
+
+7) Tabela aluno_turma
+
+Faz o vínculo entre aluno e turma (matrícula).
+
+Campos:
+
+id_aluno_turma SERIAL PRIMARY KEY
+Identificador único da matrícula.
+
+id_aluno INT
+ID do aluno matriculado.
+
+id_turma INT
+Turma onde ele foi matriculado.
+
+ano_letivo INT NOT NULL
+Ano da matrícula.
+
+situacao VARCHAR(20) CHECK (...)
+Pode ser matriculado, aprovado, reprovado ou trancado.
+
+Regras:
+
+fk_at_aluno vincula à tabela aluno.
+
+fk_at_turma vincula à tabela turma.
+
+Ambos possuem ON DELETE CASCADE.
+
+8) Tabela disciplina
+
+Representa as disciplinas associadas às turmas.
+
+Campos:
+
+id_disciplina SERIAL PRIMARY KEY
+ID da disciplina.
+
+id_turma INT
+turma à qual ela pertence.
+
+nome_disciplina VARCHAR(100) NOT NULL
+Nome da disciplina.
+
+descricao TEXT
+Explicação da disciplina.
+
+carga_horaria INT
+Carga horária total.
+
+Regras:
+
+fk_disc_turma garante vínculo com turma.
+
+9) Tabela professor_disciplina
+
+Relaciona professores às disciplinas que ministram.
+É uma tabela de ligação N:N.
+
+Campos:
+
+id_professor INT
+
+id_disciplina INT
+
+Regras:
+
+PRIMARY KEY (id_professor, id_disciplina)
+Impede o mesmo professor de ser vinculado duas vezes à mesma disciplina.
+
+fk_pd_prof e fk_pd_disc
+Garantem que professor e disciplina existam.
+
+10) Tabela aula_gravada
+
+Armazena vídeos das aulas da disciplina.
+
+Campos:
+
+id_aula SERIAL PRIMARY KEY
+
+id_disciplina INT
+
+titulo VARCHAR(150)
+
+descricao TEXT
+
+url_video VARCHAR(255)
+
+data_postagem DATE DEFAULT CURRENT_DATE
+A data padrão é o dia atual.
+
+Regras:
+
+fk_aula_disc vincula aula à disciplina.
+
+11) Tabela atividade
+
+Guarda atividades postadas pelos professores.
+
+Campos:
+
+id_atividade INT PRIMARY KEY
+
+id_disciplina INT
+
+titulo VARCHAR(150)
+
+descricao TEXT
+
+data_publicacao DATE
+
+data_limite DATE
+
+pontuacao_maxima DECIMAL(5,2)
+
+Regras:
+
+FK simples para disciplina.
+
+12) Tabela prova_online
+
+Representa provas colocadas na plataforma.
+
+Campos:
+
+id_prova INT PRIMARY KEY
+
+id_disciplina INT
+
+titulo VARCHAR(150)
+
+descricao TEXT
+
+data_prova DATE
+
+valor_maximo DECIMAL(5,2)
+
+Regras:
+
+FK para disciplina.
+
+13) Tabela nota_prova
+
+Guarda as notas dos alunos nas provas.
+
+Campos:
+
+id_nota_prova INT PRIMARY KEY
+
+id_prova INT
+
+id_aluno INT
+
+nota DECIMAL(5,2)
+
+Regras:
+
+FKs garantem que o aluno e a prova existam antes de registrar a nota.
+
+14) Tabela trabalho
+
+Armazena trabalhos práticos da disciplina.
+
+Campos:
+
+id_trabalho INT PRIMARY KEY
+
+id_disciplina INT
+
+titulo VARCHAR(150)
+
+descricao TEXT
+
+data_entrega DATE
+
+valor_maximo DECIMAL(5,2)
+
+Regras:
+
+FK vincula o trabalho à disciplina.
+
+15) Tabela nota_trabalho
+
+Registra notas dos alunos nos trabalhos.
+
+Campos:
+
+id_nota_trabalho INT PRIMARY KEY
+
+id_trabalho INT
+
+id_aluno INT
+
+nota DECIMAL(5,2)
+
+Regras:
+
+FKs vinculam a nota ao trabalho e ao aluno.
