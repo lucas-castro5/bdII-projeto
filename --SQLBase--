@@ -1,4 +1,5 @@
--- Criação das tabelas
+-- Criação de Tabelas
+-- 1) Usuários
 create table usuario(
 	id_usuario INT PRIMARY KEY,
 	nome VARCHAR(100),
@@ -9,33 +10,157 @@ create table usuario(
 	tipo_usuario VARCHAR(20) CHECK (tipo_usuario IN('aluno','professor','coordenador','responsavel','administrador')),
 	data_cadastro DATE
 );
-
-create table aluno(
-	id_aluno INT PRIMARY KEY REFERENCES usuario(id_aluno),
-	matricula VARCHAR(15) UNIQUE,
-	data_nascimento DATE,
-	ano_ingresso INT,
-	status_aluno VARCHAR(20) CHECK (status_aluno IN('ativo','trancado','concluido')),
-	fk_id_responsavel INT
-);
-
+-- 2) Responsável
 create table responsavel(
 	id_responsavel INT PRIMARY KEY REFERENCES usuario(id_usuario),
 	parentesco VARCHAR(50)
 );
 
-ALTER TABLE aluno
-ADD CONSTRAINT fk_aluno_responsavel
-  FOREIGN KEY (fk_id_responsavel) REFERENCES responsavel(id_responsavel);
-
-
-create table professor(
-	id_professor INT PRIMARY KEY,
-	carga_horario_semanal INT,
-	qtd_alunos_max INT,
-	especialidade VARCHAR(100)
+-- 3) Aluno
+CREATE TABLE aluno (
+    id_aluno INT PRIMARY KEY,
+    matricula VARCHAR(20) UNIQUE,
+    data_nascimento DATE,
+    ano_ingresso INT,
+    status_aluno VARCHAR(20) CHECK (status_aluno IN ('ativo','trancado','concluido')),
+    id_responsavel INT,
+    CONSTRAINT fk_aluno_usuario FOREIGN KEY (id_aluno) REFERENCES usuario(id_usuario) ON DELETE CASCADE,
+    CONSTRAINT fk_aluno_responsavel FOREIGN KEY (id_responsavel) REFERENCES responsavel(id_responsavel)
 );
+-- O Primeiro CONSTRAINT Serve para garantir que todo aluno cadastrado seja um usuário, garantindo que ele tenhja as informações de usuário(CPF,Nome, etc)
+-- O Segundo CONSTRAINT Serve para garantir que o aluno tenha somenente um responsavel por ele
+-- O CONSTRAINT é como um regra de integridade, ou seja, Não deixa que o insira dados que não devia existir no banco de dados
 
-create table coordenador(
-	id_
-)
+-- 4) Professor
+CREATE TABLE professor (
+    id_professor INT PRIMARY KEY,
+    carga_horaria_semanal INT,
+    qtd_alunos_max INT,
+    especialidade VARCHAR(80),
+    CONSTRAINT fk_prof_usuario FOREIGN KEY (id_professor) REFERENCES usuario(id_usuario) ON DELETE CASCADE
+);
+-- Nesse caso o professor so pode ser cadastrado se elçe for um usuário antes
+
+-- 5) Coordenador
+CREATE TABLE coordenador(
+	id_coordenador INT PRIMARY KEY,
+	departamento VARCHAR(80),
+	CONSTRAINT fk_coord_usuario FOREIGN KEY (id_coordenador) REFERENCES usuario(id_usuario) ON DELETE CASCADE
+);
+ -- Nesse outro caso, o coordenador tambem precisa ser usuario assim garantindo que ele tenha nome, cpf e as coisas de um usuário
+
+ -- 6) Turma
+ CREATE TABLE turma (
+    id_turma SERIAL PRIMARY KEY,
+    nome_turma VARCHAR(50) NOT NULL,
+    ano_letivo INT NOT NULL,
+    turno VARCHAR(10) CHECK (turno IN ('manha','tarde','noite')),
+    status_turma VARCHAR(10) CHECK (status_turma IN ('ativa','inativa'))
+);
+-- aqui nessa tabela o check serve pra autorizar somente manhã, tarde e noite no turno
+
+-- 7) Aluno_Turma
+CREATE TABLE aluno_turma (
+    id_aluno_turma SERIAL PRIMARY KEY,
+    id_aluno INT,
+    id_turma INT,
+    ano_letivo INT NOT NULL,
+    situacao VARCHAR(20) CHECK (situacao IN ('matriculado','aprovado','reprovado','trancado')),
+    CONSTRAINT fk_at_aluno FOREIGN KEY (id_aluno) REFERENCES aluno(id_aluno) ON DELETE CASCADE,
+    CONSTRAINT fk_at_turma FOREIGN KEY (id_turma) REFERENCES turma(id_turma) ON DELETE CASCADE
+);
+-- Aqui só garante a integridade escolar, assegurando o vinculo entre turma seja valido
+
+-- 8) Disciplina
+CREATE TABLE disciplina (
+    id_disciplina SERIAL PRIMARY KEY,
+    id_turma INT,
+    nome_disciplina VARCHAR(100) NOT NULL,
+    descricao TEXT,
+    carga_horaria INT,
+    CONSTRAINT fk_disc_turma FOREIGN KEY (id_turma) REFERENCES turma(id_turma) ON DELETE CASCADE
+);
+-- Garante que as disciplinas estejam vinculadas as turmas
+
+-- 9) Professor_Disciplina
+CREATE TABLE professor_disciplina (
+    id_professor INT,
+    id_disciplina INT,
+    PRIMARY KEY (id_professor, id_disciplina),
+    CONSTRAINT fk_pd_prof FOREIGN KEY (id_professor) REFERENCES professor(id_professor) ON DELETE CASCADE,
+    CONSTRAINT fk_pd_disc FOREIGN KEY (id_disciplina) REFERENCES disciplina(id_disciplina) ON DELETE CASCADE
+);
+-- Garante que o professor ministre mais de uma discipolina, mas somente professor pode ministrar disciplinas
+
+-- 10) Aula_Gravada
+CREATE TABLE aula_gravada (
+    id_aula SERIAL PRIMARY KEY,
+    id_disciplina INT,
+    titulo VARCHAR(150),
+    descricao TEXT,
+    url_video VARCHAR(255),
+    data_postagem DATE DEFAULT CURRENT_DATE,
+    CONSTRAINT fk_aula_disc FOREIGN KEY (id_disciplina) REFERENCES disciplina(id_disciplina) ON DELETE CASCADE
+);
+-- Armazena as aulas em video disponibilizando aos alunos
+
+-- 11) Atividade
+CREATE TABLE atividade (
+    id_atividade INT PRIMARY KEY,
+    id_disciplina INT,
+    titulo VARCHAR(150),
+    descricao TEXT,
+    data_publicacao DATE,
+    data_limite DATE,
+    pontuacao_maxima DECIMAL(5,2),
+    FOREIGN KEY (id_disciplina) REFERENCES disciplina(id_disciplina)
+);
+-- Armazena as atividades vinculadas as disciplinas
+
+-- 12) Prova_Online
+CREATE TABLE prova_online (
+    id_prova INT PRIMARY KEY,
+    id_disciplina INT,
+    titulo VARCHAR(150),
+    descricao TEXT,
+    data_prova DATE,
+    valor_maximo DECIMAL(5,2),
+    FOREIGN KEY (id_disciplina) REFERENCES disciplina(id_disciplina)
+);
+-- Registra as avaliações relacionadas as disciplinas
+
+
+-- 13) Nota_Prova
+CREATE TABLE nota_prova (
+    id_nota_prova INT PRIMARY KEY,
+    id_prova INT,
+    id_aluno INT,
+    nota DECIMAL(5,2),
+    FOREIGN KEY (id_prova) REFERENCES prova_online(id_prova),
+    FOREIGN KEY (id_aluno) REFERENCES aluno(id_aluno)
+);
+-- Garante que os registros estejam vinculados a um aluno e a disciplinas validas
+
+-- 14) Trabalho
+CREATE TABLE trabalho (
+    id_trabalho INT PRIMARY KEY,
+    id_disciplina INT,
+    titulo VARCHAR(150),
+    descricao TEXT,
+    data_entrega DATE,
+    valor_maximo DECIMAL(5,2),
+    FOREIGN KEY (id_disciplina) REFERENCES disciplina(id_disciplina)
+);
+-- Armazena Trabalhos avaliativos Vinculados as disciplinas Validas
+
+
+-- 15) Nota_Trabalho
+CREATE TABLE nota_trabalho (
+    id_nota_trabalho INT PRIMARY KEY,
+    id_trabalho INT,
+    id_aluno INT,
+    nota DECIMAL(5,2),
+    FOREIGN KEY (id_trabalho) REFERENCES trabalho(id_trabalho),
+    FOREIGN KEY (id_aluno) REFERENCES aluno(id_aluno)
+);
+-- Registra o desempenho dos alunos nos trabalhos
