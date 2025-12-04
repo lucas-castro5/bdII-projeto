@@ -282,18 +282,37 @@ CREATE OR REPLACE FUNCTION fn_inserir_atividade(
     p_descricao TEXT,
     p_data_pub DATE,
     p_data_limite DATE,
-    p_pontuacao DECIMAL
+    p_pontuacao DECIMAL,
+    p_id_professor INT   -- ADICIONADO
 )
 RETURNS TEXT AS $$
 BEGIN
-    -- Regra de negócio
+    -- Verifica se a data limite é válida
     IF p_data_limite <= p_data_pub THEN
         RETURN 'Erro: data_limite deve ser maior que a data_publicacao.';
     END IF;
 
-    -- Inserção
-    INSERT INTO atividade(id_atividade, id_disciplina, titulo, descricao, data_publicacao, data_limite, pontuacao_maxima)
-    VALUES (p_id, p_id_disciplina, p_titulo, p_descricao, p_data_pub, p_data_limite, p_pontuacao);
+    -- Insere a atividade garantindo o professor associado
+    INSERT INTO atividade (
+        id_atividade,
+        id_disciplina,
+        titulo,
+        descricao,
+        data_publicacao,
+        data_limite,
+        pontuacao_maxima,
+        id_professor      -- ADICIONADO
+    )
+    VALUES (
+        p_id,
+        p_id_disciplina,
+        p_titulo,
+        p_descricao,
+        p_data_pub,
+        p_data_limite,
+        p_pontuacao,
+        p_id_professor   -- ADICIONADO
+    );
 
     RETURN 'Atividade inserida com sucesso!';
 END;
