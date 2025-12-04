@@ -1,1 +1,215 @@
+-- ==========================================================
+-- 1. POVOANDO USUÁRIOS E SUAS ESPECIALIZAÇÕES
+-- ==========================================================
 
+-- --- COORDENADORES (10 registros) ---
+INSERT INTO usuario (id_usuario, nome, cpf, email, senha, telefone, tipo_usuario, data_cadastro) VALUES
+(1, 'Carlos Silva', '11111111111', 'carlos@escola.com', '123', '99999-0001', 'coordenador', '2023-01-10'),
+(2, 'Ana Souza', '11111111112', 'ana@escola.com', '123', '99999-0002', 'coordenador', '2023-01-11'),
+(3, 'Roberto Dias', '11111111113', 'roberto@escola.com', '123', '99999-0003', 'coordenador', '2023-01-12'),
+(4, 'Julia Lima', '11111111114', 'julia@escola.com', '123', '99999-0004', 'coordenador', '2023-01-13'),
+(5, 'Marcos Rocha', '11111111115', 'marcos@escola.com', '123', '99999-0005', 'coordenador', '2023-01-14'),
+(6, 'Fernanda Alves', '11111111116', 'fernanda@escola.com', '123', '99999-0006', 'coordenador', '2023-01-15'),
+(7, 'Paulo Cesar', '11111111117', 'paulo@escola.com', '123', '99999-0007', 'coordenador', '2023-01-16'),
+(8, 'Bruna Melo', '11111111118', 'bruna@escola.com', '123', '99999-0008', 'coordenador', '2023-01-17'),
+(9, 'Lucas Martins', '11111111119', 'lucas@escola.com', '123', '99999-0009', 'coordenador', '2023-01-18'),
+(10, 'Carla Nunes', '11111111110', 'carla@escola.com', '123', '99999-0010', 'coordenador', '2023-01-19');
+
+INSERT INTO coordenador (id_coordenador, departamento) VALUES
+(1, 'Exatas'), (2, 'Humanas'), (3, 'Biológicas'), (4, 'Tecnologia'), (5, 'Pedagógico'),
+(6, 'Administrativo'), (7, 'Financeiro'), (8, 'Esportes'), (9, 'Artes'), (10, 'Línguas');
+
+-- --- PROFESSORES (10 registros) ---
+INSERT INTO usuario (id_usuario, nome, cpf, email, senha, telefone, tipo_usuario, data_cadastro) VALUES
+(20, 'Prof. Girafales', '22222222221', 'girafales@escola.com', '123', '98888-0001', 'professor', '2023-02-01'),
+(21, 'Prof. Xavier', '22222222222', 'xavier@escola.com', '123', '98888-0002', 'professor', '2023-02-02'),
+(22, 'Prof. Snape', '22222222223', 'snape@escola.com', '123', '98888-0003', 'professor', '2023-02-03'),
+(23, 'Prof. Dumbledore', '22222222224', 'albus@escola.com', '123', '98888-0004', 'professor', '2023-02-04'),
+(24, 'Prof. Minerva', '22222222225', 'minerva@escola.com', '123', '98888-0005', 'professor', '2023-02-05'),
+(25, 'Prof. Pardal', '22222222226', 'pardal@escola.com', '123', '98888-0006', 'professor', '2023-02-06'),
+(26, 'Prof. Raimundo', '22222222227', 'raimundo@escola.com', '123', '98888-0007', 'professor', '2023-02-07'),
+(27, 'Prof. Pasquale', '22222222228', 'pasquale@escola.com', '123', '98888-0008', 'professor', '2023-02-08'),
+(28, 'Prof. Eraldo', '22222222229', 'eraldo@escola.com', '123', '98888-0009', 'professor', '2023-02-09'),
+(29, 'Prof. Helena', '22222222200', 'helena@escola.com', '123', '98888-0010', 'professor', '2023-02-10');
+
+INSERT INTO professor (id_professor, carga_horaria_semanal, qtd_alunos_max, especialidade) VALUES
+(20, 40, 50, 'Matemática'), (21, 20, 30, 'Física'), (22, 40, 40, 'Química'), (23, 10, 20, 'História'),
+(24, 30, 40, 'Geografia'), (25, 40, 50, 'Engenharia'), (26, 20, 30, 'Português'), (27, 30, 40, 'Gramática'),
+(28, 40, 50, 'Biologia'), (29, 20, 30, 'Pedagogia');
+
+-- --- RESPONSÁVEIS (10 registros) ---
+INSERT INTO usuario (id_usuario, nome, cpf, email, senha, telefone, tipo_usuario, data_cadastro) VALUES
+(40, 'Pai do João', '33333333301', 'pai1@gmail.com', '123', '97777-0001', 'responsavel', '2023-03-01'),
+(41, 'Mãe da Maria', '33333333302', 'mae1@gmail.com', '123', '97777-0002', 'responsavel', '2023-03-01'),
+(42, 'Tio do Pedro', '33333333303', 'tio1@gmail.com', '123', '97777-0003', 'responsavel', '2023-03-01'),
+(43, 'Avó da Ana', '33333333304', 'avo1@gmail.com', '123', '97777-0004', 'responsavel', '2023-03-01'),
+(44, 'Pai do Lucas', '33333333305', 'pai2@gmail.com', '123', '97777-0005', 'responsavel', '2023-03-01'),
+(45, 'Mãe da Bia', '33333333306', 'mae2@gmail.com', '123', '97777-0006', 'responsavel', '2023-03-01'),
+(46, 'Pai do Enzo', '33333333307', 'pai3@gmail.com', '123', '97777-0007', 'responsavel', '2023-03-01'),
+(47, 'Mãe da Valentina', '33333333308', 'mae3@gmail.com', '123', '97777-0008', 'responsavel', '2023-03-01'),
+(48, 'Tia do Miguel', '33333333309', 'tia1@gmail.com', '123', '97777-0009', 'responsavel', '2023-03-01'),
+(49, 'Pai da Alice', '33333333310', 'pai4@gmail.com', '123', '97777-0010', 'responsavel', '2023-03-01');
+
+INSERT INTO responsavel (id_responsavel, parentesco) VALUES
+(40, 'Pai'), (41, 'Mãe'), (42, 'Tio'), (43, 'Avó'), (44, 'Pai'),
+(45, 'Mãe'), (46, 'Pai'), (47, 'Mãe'), (48, 'Tia'), (49, 'Pai');
+
+-- --- ALUNOS (10 registros) ---
+INSERT INTO usuario (id_usuario, nome, cpf, email, senha, telefone, tipo_usuario, data_cadastro) VALUES
+(60, 'João Silva', '44444444401', 'joao@aluno.com', '123', '96666-0001', 'aluno', '2023-03-05'),
+(61, 'Maria Souza', '44444444402', 'maria@aluno.com', '123', '96666-0002', 'aluno', '2023-03-05'),
+(62, 'Pedro Santos', '44444444403', 'pedro@aluno.com', '123', '96666-0003', 'aluno', '2023-03-05'),
+(63, 'Ana Lima', '44444444404', 'ana@aluno.com', '123', '96666-0004', 'aluno', '2023-03-05'),
+(64, 'Lucas Pereira', '44444444405', 'lucas@aluno.com', '123', '96666-0005', 'aluno', '2023-03-05'),
+(65, 'Bia Costa', '44444444406', 'bia@aluno.com', '123', '96666-0006', 'aluno', '2023-03-05'),
+(66, 'Enzo Gabriel', '44444444407', 'enzo@aluno.com', '123', '96666-0007', 'aluno', '2023-03-05'),
+(67, 'Valentina', '44444444408', 'valentina@aluno.com', '123', '96666-0008', 'aluno', '2023-03-05'),
+(68, 'Miguel Oliveira', '44444444409', 'miguel@aluno.com', '123', '96666-0009', 'aluno', '2023-03-05'),
+(69, 'Alice Rocha', '44444444410', 'alice@aluno.com', '123', '96666-0010', 'aluno', '2023-03-05');
+
+INSERT INTO aluno (id_aluno, matricula, data_nascimento, ano_ingresso, status_aluno, id_responsavel) VALUES
+(60, 'MAT202301', '2005-01-01', 2023, 'ativo', 40),
+(61, 'MAT202302', '2005-02-01', 2023, 'ativo', 41),
+(62, 'MAT202303', '2005-03-01', 2023, 'ativo', 42),
+(63, 'MAT202304', '2005-04-01', 2023, 'ativo', 43),
+(64, 'MAT202305', '2005-05-01', 2023, 'trancado', 44),
+(65, 'MAT202306', '2005-06-01', 2023, 'ativo', 45),
+(66, 'MAT202307', '2005-07-01', 2023, 'ativo', 46),
+(67, 'MAT202308', '2005-08-01', 2023, 'concluido', 47),
+(68, 'MAT202309', '2005-09-01', 2023, 'ativo', 48),
+(69, 'MAT202310', '2005-10-01', 2023, 'ativo', 49);
+
+-- ==========================================================
+-- 2. POVOANDO TURMAS E DISCIPLINAS
+-- ==========================================================
+
+-- --- TURMAS ---
+INSERT INTO turma (id_turma, nome_turma, ano_letivo, turno, status_turma) VALUES
+(1, '1º Ano A', 2023, 'manha', 'ativa'),
+(2, '1º Ano B', 2023, 'tarde', 'ativa'),
+(3, '2º Ano A', 2023, 'manha', 'ativa'),
+(4, '2º Ano B', 2023, 'tarde', 'ativa'),
+(5, '3º Ano A', 2023, 'manha', 'ativa'),
+(6, '3º Ano B', 2023, 'noite', 'ativa'),
+(7, 'EJA 1', 2023, 'noite', 'ativa'),
+(8, 'Reforço Mat', 2023, 'tarde', 'inativa'),
+(9, 'Clube Ciências', 2023, 'tarde', 'ativa'),
+(10, 'Preparatório', 2023, 'manha', 'ativa');
+
+-- --- DISCIPLINAS ---
+INSERT INTO disciplina (id_disciplina, id_turma, nome_disciplina, descricao, carga_horaria) VALUES
+(1, 1, 'Matemática I', 'Álgebra Básica', 80),
+(2, 1, 'Português I', 'Gramática e Texto', 80),
+(3, 1, 'História I', 'História Antiga', 40),
+(4, 2, 'Matemática I', 'Álgebra Básica', 80),
+(5, 2, 'Geografia I', 'Geopolítica', 40),
+(6, 3, 'Física A', 'Mecânica', 60),
+(7, 3, 'Química A', 'Tabela Periódica', 60),
+(8, 5, 'Biologia Celular', 'Células', 60),
+(9, 6, 'Literatura', 'Clássicos', 40),
+(10, 7, 'Matemática Financeira', 'Juros e Taxas', 40);
+
+-- --- VÍNCULO PROFESSOR_DISCIPLINA ---
+INSERT INTO professor_disciplina (id_professor, id_disciplina) VALUES
+(20, 1), (20, 4), (20, 10), -- Prof Girafales (Matemática)
+(26, 2), (26, 9),           -- Prof Raimundo (Português)
+(23, 3),                    -- Prof Dumbledore (História)
+(24, 5),                    -- Prof Minerva (Geografia)
+(21, 6),                    -- Prof Xavier (Física)
+(22, 7),                    -- Prof Snape (Química)
+(28, 8);                    -- Prof Eraldo (Biologia)
+
+-- --- VÍNCULO ALUNO_TURMA ---
+INSERT INTO aluno_turma (id_aluno, id_turma, ano_letivo, situacao) VALUES
+(60, 1, 2023, 'matriculado'),
+(61, 1, 2023, 'matriculado'),
+(62, 1, 2023, 'matriculado'),
+(63, 1, 2023, 'matriculado'),
+(64, 2, 2023, 'trancado'),
+(65, 2, 2023, 'matriculado'),
+(66, 3, 2023, 'matriculado'),
+(67, 3, 2023, 'aprovado'),
+(68, 5, 2023, 'matriculado'),
+(69, 7, 2023, 'matriculado');
+
+-- ==========================================================
+-- 3. ATIVIDADES, AULAS, PROVAS E NOTAS
+-- ==========================================================
+
+-- --- AULA GRAVADA ---
+INSERT INTO aula_gravada (id_disciplina, titulo, descricao, url_video) VALUES
+(1, 'Equações 1', 'Intro a equações', 'http://video1.com'),
+(1, 'Equações 2', 'Bhaskara', 'http://video2.com'),
+(2, 'Verbos', 'Conjugação', 'http://video3.com'),
+(3, 'Roma Antiga', 'Império Romano', 'http://video4.com'),
+(6, 'Leis de Newton', 'Inércia', 'http://video5.com'),
+(7, 'Átomos', 'Modelos atômicos', 'http://video6.com'),
+(8, 'Mitocôndria', 'Energia', 'http://video7.com'),
+(1, 'Funções', 'Intro a funções', 'http://video8.com'),
+(4, 'Trigonometria', 'Triângulos', 'http://video9.com'),
+(10, 'Juros Simples', 'Mat Fin', 'http://video10.com');
+
+-- --- PROVA ONLINE ---
+INSERT INTO prova_online (id_prova, id_disciplina, titulo, descricao, data_prova, valor_maximo) VALUES
+(1, 1, 'Prova P1 Matemática', 'Conteúdo cap 1', '2023-04-10', 10.0),
+(2, 1, 'Prova P2 Matemática', 'Conteúdo cap 2', '2023-06-10', 10.0),
+(3, 2, 'Prova P1 Português', 'Gramática', '2023-04-12', 10.0),
+(4, 3, 'Prova P1 História', 'Roma', '2023-04-15', 10.0),
+(5, 6, 'Prova P1 Física', 'Newton', '2023-05-20', 10.0),
+(6, 7, 'Prova P1 Química', 'Átomos', '2023-05-22', 10.0),
+(7, 8, 'Prova P1 Biologia', 'Célula', '2023-05-25', 10.0),
+(8, 4, 'Prova P1 Mat Tarde', 'Algebra', '2023-04-10', 10.0),
+(9, 5, 'Prova P1 Geografia', 'Mapas', '2023-04-18', 10.0),
+(10, 10, 'Prova Final Finanças', 'Juros', '2023-11-20', 10.0);
+
+-- --- NOTA PROVA ---
+INSERT INTO nota_prova (id_nota_prova, id_prova, id_aluno, nota) VALUES
+(1, 1, 60, 8.5), -- João na P1 Mat
+(2, 1, 61, 9.0), -- Maria na P1 Mat
+(3, 1, 62, 4.5), -- Pedro na P1 Mat
+(4, 1, 63, 7.0), -- Ana na P1 Mat
+(5, 3, 60, 8.0), -- João em Port
+(6, 3, 61, 9.5), -- Maria em Port
+(7, 5, 66, 6.0), -- Enzo em Física
+(8, 5, 67, 10.0), -- Valentina em Física
+(9, 8, 65, 7.5), -- Bia em Mat Tarde
+(10, 2, 60, 9.0); -- João na P2 Mat
+
+-- --- TRABALHO ---
+INSERT INTO trabalho (id_trabalho, id_disciplina, titulo, descricao, data_entrega, valor_maximo) VALUES
+(1, 1, 'Lista de Exercícios', 'Resolver lista 1', '2023-03-30', 5.0),
+(2, 2, 'Redação', 'Tema Livre', '2023-04-05', 5.0),
+(3, 3, 'Maquete Roma', 'Coliseu', '2023-05-01', 5.0),
+(4, 6, 'Experimento Queda', 'Relatório', '2023-05-15', 5.0),
+(5, 7, 'Tabela Periódica', 'Cartaz', '2023-05-18', 5.0),
+(6, 1, 'Pesquisa Hist Mat', 'Texto', '2023-06-01', 5.0),
+(7, 8, 'Desenho Célula', 'Em folha A4', '2023-04-20', 5.0),
+(8, 4, 'Lista Mat Tarde', 'Resolver', '2023-03-30', 5.0),
+(9, 5, 'Mapa Múndi', 'Pintar', '2023-04-10', 5.0),
+(10, 10, 'Simulação Investimento', 'Planilha', '2023-10-10', 5.0);
+
+-- --- NOTA TRABALHO ---
+INSERT INTO nota_trabalho (id_nota_trabalho, id_trabalho, id_aluno, nota) VALUES
+(1, 1, 60, 5.0),
+(2, 1, 61, 4.5),
+(3, 1, 62, 3.0),
+(4, 2, 60, 4.0),
+(5, 2, 61, 5.0),
+(6, 3, 62, 5.0),
+(7, 4, 66, 4.5),
+(8, 4, 67, 5.0),
+(9, 8, 65, 4.0),
+(10, 7, 60, 5.0);
+
+-- --- ATIVIDADE (10 registros extras para cumprir tabela) ---
+INSERT INTO atividade (id_atividade, id_disciplina, titulo, descricao, data_publicacao, data_limite, pontuacao_maxima) VALUES
+(1, 1, 'Quiz 1', 'Perguntas rápidas', '2023-03-01', '2023-03-02', 2.0),
+(2, 1, 'Quiz 2', 'Perguntas rápidas', '2023-03-10', '2023-03-12', 2.0),
+(3, 2, 'Leitura 1', 'Ler cap 1', '2023-03-05', '2023-03-08', 2.0),
+(4, 3, 'Resumo', 'Fazer resumo', '2023-03-15', '2023-03-20', 2.0),
+(5, 6, 'Cálculo 1', 'Resolver', '2023-04-01', '2023-04-05', 2.0),
+(6, 7, 'Elemento X', 'Descobrir elemento', '2023-04-02', '2023-04-06', 2.0),
+(7, 8, 'Vídeo aula', 'Assistir', '2023-04-10', '2023-04-11', 1.0),
+(8, 4, 'Desafio', 'Resolver desafio', '2023-03-20', '2023-03-21', 3.0),
+(9, 5, 'Notícia', 'Trazer notícia', '2023-03-25', '2023-03-26', 2.0),
+(10, 10, 'Cotação', 'Pesquisar dólar', '2023-11-01', '2023-11-02', 2.0);
