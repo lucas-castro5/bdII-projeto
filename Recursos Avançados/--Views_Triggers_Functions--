@@ -1,1 +1,301 @@
+-- VIEW 1: Lista alunos ativos com informações básicas e turma atual
+CREATE OR REPLACE VIEW vw_alunos_ativos AS
+SELECT 
+    u.nome AS nome_aluno,          -- Nome do aluno (vem de usuario)
+    a.matricula,                   -- Matrícula do aluno
+    a.status_aluno,                -- Status: ativo / trancado / concluído
+    t.nome_turma,                  -- Nome da turma em que está matriculado
+    at.ano_letivo                  -- Ano letivo da matrícula
+FROM aluno a
+JOIN usuario u ON u.id_usuario = a.id_aluno      -- Relaciona aluno ao seu usuário
+LEFT JOIN aluno_turma at ON at.id_aluno = a.id_aluno  -- Liga aluno às turmas
+LEFT JOIN turma t ON t.id_turma = at.id_turma         -- Liga a turma à matrícula
+WHERE a.status_aluno = 'ativo';   -- Filtra apenas alunos ativos
+
+
+
+
+-- VIEW 2: Mostra quantas disciplinas cada professor ministra 
+-- e quantos alunos ele atende no total.
+CREATE OR REPLACE VIEW vw_professor_resumo AS
+SELECT 
+    u.nome AS nome_professor,                 -- Nome do professor
+    COUNT(DISTINCT d.id_disciplina) AS qtd_disciplinas,  -- Total de disciplinas
+    COUNT(DISTINCT at.id_aluno) AS qtd_alunos             -- Total de alunos
+FROM professor p
+JOIN usuario u ON u.id_usuario = p.id_professor
+JOIN professor_disciplina pd ON pd.id_professor = p.id_professor
+JOIN disciplina d ON d.id_disciplina = pd.id_disciplina
+JOIN turma t ON t.id_turma = d.id_turma
+LEFT JOIN aluno_turma at ON at.id_turma = t.id_turma
+GROUP BY u.nome;  -- Agrupa por professor
+
+
+
+
+-- VIEW 3: Calcula média final do aluno por disciplina
+-- e indica se está OK ou abaixo da média (6).
+CREATE OR REPLACE VIEW vw_medias_alunos AS
+SELECT 
+    u.nome AS aluno,              -- Nome do aluno
+    d.nome_disciplina AS disciplina,  -- Disciplina
+
+    -- Cálculo da média final:
+    (
+        COALESCE((
+            SELECT AVG(np.nota)
+            FROM nota_prova np
+            JOIN prova_online po ON po.id_prova = np.id_prova
+            WHERE np.id_aluno = a.id_aluno
+              AND po.id_disciplina = d.id_disciplina
+        ), 0)
+        +
+        COALESCE((
+            SELECT AVG(nt.nota)
+            FROM nota_trabalho nt
+            JOIN trabalho tr ON tr.id_trabalho = nt.id_trabalho
+            WHERE nt.id_aluno = a.id_aluno
+              AND tr.id_disciplina = d.id_disciplina
+        ), 0)
+    ) / 2 AS media_final,
+
+    -- Verifica situação do aluno:
+    CASE 
+        WHEN (
+            (
+                COALESCE((
+                    SELECT AVG(np.nota)
+                    FROM nota_prova np
+                    JOIN prova_online po ON po.id_prova = np.id_prova
+                    WHERE np.id_aluno = a.id_aluno
+                      AND po.id_disciplina = d.id_disciplina
+                ), 0)
+                +
+                COALESCE((
+                    SELECT AVG(nt.nota)
+                    FROM nota_trabalho nt
+                    JOIN trabalho tr ON tr.id_trabalho = nt.id_trabalho
+                    WHERE nt.id_aluno = a.id_aluno
+                      AND tr.id_disciplina = d.id_disciplina
+                ), 0)
+            ) / 2
+        ) < 6 THEN 'Abaixo da Média'
+        ELSE 'OK'
+    END AS situacao
+
+FROM aluno a
+JOIN usuario u ON u.id_usuario = a.id_aluno
+JOIN aluno_turma at ON at.id_aluno = a.id_aluno
+JOIN turma t ON t.id_turma = at.id_turma
+JOIN disciplina d ON d.id_turma = t.id_turma;
+
+
+
+
+-- Cria tabela que armazenará alterações de notas
+CREATE TABLE tb_auditoria_notas (
+    id SERIAL PRIMARY KEY,                   -- ID único
+    tabela VARCHAR(50),                      -- Tabela alterada
+    id_registro INT,                         -- ID do registro alterado
+    operacao VARCHAR(20),                    -- Tipo de operação (UPDATE)
+    valor_antigo DECIMAL(5,2),               -- Nota antes
+    valor_novo DECIMAL(5,2),                 -- Nota depois
+    data_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- Quando ocorreu
+);
+
+
+
+-- Função que grava antes/depois de alterações nas notas
+CREATE OR REPLACE FUNCTION fn_auditar_notas()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO tb_auditoria_notas (tabela, id_registro, operacao, valor_antigo, valor_novo)
+    VALUES (
+        TG_TABLE_NAME,   -- Nome da tabela onde ocorreu o UPDATE
+        OLD.id_nota_prova,  -- ID da nota alterada
+        'UPDATE',        -- Tipo da operação
+        OLD.nota,        -- Nota anterior
+        NEW.nota         -- Nota nova
+    );
+    RETURN NEW;  -- Confirma atualização
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER trg_auditar_nota_prova
+AFTER UPDATE ON nota_prova      -- Sempre que atualizar nota_prova
+FOR EACH ROW
+EXECUTE FUNCTION fn_auditar_notas();
+
+
+CREATE TRIGGER trg_auditar_nota_trabalho
+AFTER UPDATE ON nota_trabalho
+FOR EACH ROW
+EXECUTE FUNCTION fn_auditar_notas();
+
+
+
+-- Função que valida se nota está entre 0 e o valor máximo permitido
+CREATE OR REPLACE FUNCTION fn_validar_nota()
+RETURNS TRIGGER AS $$
+DECLARE
+    max_valor DECIMAL(5,2);   -- Valor máximo permitido
+BEGIN
+    -- Descobre valor máximo dependendo da tabela
+    IF TG_TABLE_NAME = 'nota_prova' THEN
+        SELECT valor_maximo INTO max_valor
+        FROM prova_online
+        WHERE id_prova = NEW.id_prova;
+    ELSE
+        SELECT valor_maximo INTO max_valor
+        FROM trabalho
+        WHERE id_trabalho = NEW.id_trabalho;
+    END IF;
+
+    -- Validação da nota
+    IF NEW.nota < 0 OR NEW.nota > max_valor THEN
+        RAISE EXCEPTION 'Nota inválida: %. Deve estar entre 0 e %.', NEW.nota, max_valor;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER trg_validar_nota_prova
+BEFORE INSERT OR UPDATE ON nota_prova
+FOR EACH ROW
+EXECUTE FUNCTION fn_validar_nota();
+
+
+CREATE TRIGGER trg_validar_nota_trabalho
+BEFORE INSERT OR UPDATE ON nota_trabalho
+FOR EACH ROW
+EXECUTE FUNCTION fn_validar_nota();
+
+
+
+-- Função que verifica se o professor pertence à disciplina
+CREATE OR REPLACE FUNCTION fn_verificar_professor_atividade()
+RETURNS TRIGGER AS $$
+DECLARE
+    existe INT;
+BEGIN
+    SELECT COUNT(*)
+    INTO existe
+    FROM professor_disciplina
+    WHERE id_disciplina = NEW.id_disciplina
+      AND id_professor = NEW.id_professor;
+
+    IF existe = 0 THEN
+        RAISE EXCEPTION 'Professor não está vinculado à disciplina.';
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- (Necessário adicionar coluna na atividade)
+ALTER TABLE atividade ADD COLUMN id_professor INT;
+
+CREATE TRIGGER trg_verificar_prof
+BEFORE INSERT ON atividade
+FOR EACH ROW
+EXECUTE FUNCTION fn_verificar_professor_atividade();
+
+
+
+
+
+-- Função que calcula média final (provas + trabalhos)
+CREATE OR REPLACE FUNCTION fn_media_aluno(
+    idAluno INT,
+    idDisciplina INT
+)
+RETURNS DECIMAL(5,2) AS $$
+DECLARE
+    mediaProva DECIMAL(5,2);
+    mediaTrabalho DECIMAL(5,2);
+    mediaFinal DECIMAL(5,2);
+BEGIN
+    -- Média das provas
+    SELECT AVG(nota) INTO mediaProva
+    FROM nota_prova np
+    JOIN prova_online po ON po.id_prova = np.id_prova
+    WHERE np.id_aluno = idAluno
+      AND po.id_disciplina = idDisciplina;
+
+    -- Média dos trabalhos
+    SELECT AVG(nota) INTO mediaTrabalho
+    FROM nota_trabalho nt
+    JOIN trabalho tr ON tr.id_trabalho = nt.id_trabalho
+    WHERE nt.id_aluno = idAluno
+      AND tr.id_disciplina = idDisciplina;
+
+    -- Média final
+    mediaFinal := (COALESCE(mediaProva,0) + COALESCE(mediaTrabalho,0)) / 2;
+
+    RETURN mediaFinal;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+
+-- Função que retorna total de alunos, aprovados, reprovados e % de aprovação
+CREATE OR REPLACE FUNCTION fn_relatorio_turma(idTurma INT)
+RETURNS TABLE (
+    total_alunos INT,
+    aprovados INT,
+    reprovados INT,
+    percentual_aprovacao DECIMAL(5,2)
+) AS $$
+BEGIN
+    SELECT COUNT(*) INTO total_alunos
+    FROM aluno_turma
+    WHERE id_turma = idTurma;
+
+    SELECT COUNT(*) INTO aprovados
+    FROM aluno_turma
+    WHERE id_turma = idTurma AND situacao = 'aprovado';
+
+    SELECT COUNT(*) INTO reprovados
+    FROM aluno_turma
+    WHERE id_turma = idTurma AND situacao = 'reprovado';
+
+    percentual_aprovacao :=
+        CASE WHEN total_alunos = 0 THEN 0
+        ELSE (aprovados::DECIMAL / total_alunos::DECIMAL) * 100
+        END;
+
+    RETURN QUERY SELECT total_alunos, aprovados, reprovados, percentual_aprovacao;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- Função que insere atividade somente se data_limite > data_publicacao
+CREATE OR REPLACE FUNCTION fn_inserir_atividade(
+    p_id INT,
+    p_id_disciplina INT,
+    p_titulo VARCHAR,
+    p_descricao TEXT,
+    p_data_pub DATE,
+    p_data_limite DATE,
+    p_pontuacao DECIMAL
+)
+RETURNS TEXT AS $$
+BEGIN
+    -- Regra de negócio
+    IF p_data_limite <= p_data_pub THEN
+        RETURN 'Erro: data_limite deve ser maior que a data_publicacao.';
+    END IF;
+
+    -- Inserção
+    INSERT INTO atividade(id_atividade, id_disciplina, titulo, descricao, data_publicacao, data_limite, pontuacao_maxima)
+    VALUES (p_id, p_id_disciplina, p_titulo, p_descricao, p_data_pub, p_data_limite, p_pontuacao);
+
+    RETURN 'Atividade inserida com sucesso!';
+END;
+$$ LANGUAGE plpgsql;
 
