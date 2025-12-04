@@ -1,1 +1,30 @@
+SELECT nome, email, tipo_usuario 
+FROM usuario 
+WHERE tipo_usuario = 'aluno';
 
+SELECT 
+    u.nome AS Nome_Aluno,
+    t.nome_turma AS Turma,
+    t.turno AS Turno
+FROM aluno a
+JOIN usuario u ON a.id_aluno = u.id_usuario
+JOIN aluno_turma at ON a.id_aluno = at.id_aluno
+JOIN turma t ON at.id_turma = t.id_turma;
+
+SELECT status_aluno, COUNT(*) AS total
+FROM aluno
+GROUP BY status_aluno;
+
+SELECT d.nome_disciplina, COUNT(p.id_prova) AS qtd_provas
+FROM disciplina d
+JOIN prova_online p ON d.id_disciplina = p.id_disciplina
+GROUP BY d.nome_disciplina
+HAVING COUNT(p.id_prova) > 1;
+
+SELECT nome 
+FROM usuario 
+WHERE id_usuario IN (
+    SELECT id_aluno 
+    FROM nota_prova 
+    WHERE nota > 8.0
+);
