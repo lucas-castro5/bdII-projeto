@@ -1,5 +1,19 @@
-📘 Explicação do Modelo Conceitual – Sistema Acadêmico
+📘 Explicação do Modelo Conceitual – Sistema Acadêmico online
 
+Este modelo conceitual foi elaborado utilizando uma abordagem Entidade-Relacionamento, priorizando clareza, coerência e aderência às regras de negócio acadêmicas.
+
+Funcionalidades: 
+
+1. Cadastrar usuários (alunos, professores, coordenadores, responsáveis e administradores).
+2. Gerenciar turmas: criar, editar, abrir e fechar turmas.
+3. Controlar matrículas de alunos por ano letivo.
+4. Cadastrar disciplinas e associá-las às turmas.
+5. Atribuir professores às disciplinas.
+6. Publicar aulas gravadas e materiais da disciplina.
+7. Criar e gerenciar atividades, provas e trabalhos.
+8. Registrar notas de provas e trabalhos.
+9. Calcular média final baseada em três notas.
+10. Controlar permissões conforme tipo de usuário.
 
 🧩 1. Visão Geral do Modelo Conceitual
 
