@@ -4,153 +4,258 @@ Este modelo lógico representa a estrutura de um sistema acadêmico completo, in
 
 🧩 1. Usuário
 
-Tabela central do sistema, representando qualquer pessoa com acesso: aluno, professor, responsável ou coordenador.
+Tabela base para autenticação e identificação de qualquer pessoa do sistema.
 
-Campos principais:
+Campos principais
 
-Identificação (id_usuario)
+● id_usuario
 
-Dados pessoais (nome, cpf, email, telefone)
+● nome
 
-Autenticação (senha)
+● cpf
 
-Classificação (tipo_usuario)
+● email
 
-Metadados (data_cadastro)
+● senha
 
-Relacionamentos:
+● telefone
 
-Pode estar associado a Aluno, Professor, Coordenador ou Responsável.
+● tipo_usuario
+
+● data_cadastro
+
+Relacionamentos
+
+Pode ser: Aluno, Professor, Coordenador ou Responsável.
 
 👨‍👩‍👦 2. Responsável
 
-Representa a pessoa responsável por um aluno, geralmente pai/mãe ou tutor.
+Armazena os responsáveis legais de alunos.
 
-Campos: id_responsavel, parentesco
-Relacionamento:
+Campos
 
-Ligado a Aluno por meio de id_responsavel.
+● id_responsavel
+
+● parentesco
+
+Relacionamento
+
+Associado ao Aluno via id_responsavel.
 
 🎓 3. Aluno
 
-Armazena informações acadêmicas e pessoais do estudante.
+Representa o estudante e suas informações acadêmicas.
 
-Campos principais:
+Campos
 
-id_aluno, matrícula, data_nascimento
+● id_aluno
 
-ano_ingresso, status_aluno
+● matrícula
 
-id_usuario (ligação com o usuário)
+● data_nascimento
 
-id_responsavel
+● ano_ingresso
 
-Relacionamentos:
+● status_aluno
 
-Associado a Turma via tabela intermediária Aluno_turma.
+● id_usuario
 
-Recebe notas de Trabalho, Prova e Nota_prova.
+● id_responsavel
+
+Relacionamentos
+
+Pertence a turmas via Aluno_turma (N:N)
+
+Recebe notas através da tabela Nota
 
 🧑‍🏫 4. Professor
 
-Armazena informações profissionais dos docentes.
+Guarda informações dos docentes.
 
-Campos: carga_horaria_semanal, qtd_alunos_max, especialidade, id_usuario
-Relacionamento:
+Campos
 
-Associado a Disciplina pela tabela Professor_disciplina.
+● id_professor
 
-Ministra disciplinas e avalições.
+● carga_horaria_semanal
+
+● qtd_alunos_max
+
+● especialidade
+
+● id_usuario
+
+Relacionamentos
+
+Associado a disciplinas via Professor_disciplina
+
+Participa da oferta de turmas via Turma_disciplina
 
 🧑‍💼 5. Coordenador
 
-Guarda dados sobre coordenação de curso/departamento.
+Controla cursos e departamentos.
 
-Campos: id_coordenador, departamento, id_usuario
+Campos
 
-📚 6. Disciplina
+● id_coordenador
 
-Representa as matérias/ofertas acadêmicas.
+● departamento
 
-Campos: id_disciplina, nome_disciplina, descricao, carga_horaria
+● id_usuario
 
-Relacionamentos:
+● Relacionamento
 
-Relacionada a Professor pela tabela Professor_disciplina.
+● Coordena um Curso
 
-Relacionada a Prova, Trabalho e Atividade.
+🎓📚 6. Curso
 
-Relacionada a Aula_gravada.
+Representa o curso (ex.: Informática, Administração).
 
-🧑‍🏫📚 7. Professor_disciplina
+Campos
 
-Tabela de associação N:N entre professores e disciplinas.
+● id_curso
 
-🏫 8. Turma
+● nome_curso
 
-Agrupa alunos em classes/séries.
+● carga_horaria_total
 
-Campos: id_turma, nome_turma, ano_letivo, turno, status_turma
-Relacionamento:
+● id_coordenador
 
-Associada a alunos por Aluno_turma.
+Relacionamentos
 
-🧑‍🎓🏫 9. Aluno_turma
+Possui Turmas
 
-Tabela de associação entre alunos e turmas, permitindo histórico e múltiplos vínculos.
+Está ligado às disciplinas via Turma_disciplina
 
-Campos: id_aluno_turma, id_aluno, id_turma, situacao
+🏫 7. Turma
 
-🧪 10. Prova_online
+Grupo de alunos referente a um ano/período letivo.
 
-Representa provas teóricas/práticas aplicadas online.
+Campos
 
-Campos: id_prova, título, descrição, data_prova, valor_maximo, id_disciplina
-Relacionamento:
+● id_turma
 
-Recebe notas via tabela Nota_prova.
+● nome_turma
 
-📝 11. Nota_prova
+● ano_letivo
 
-Guarda a nota obtida pelo aluno em uma prova online.
+● turno
 
-Campos: id_nota_prova, nota, id_prova, id_aluno
+● status_turma
 
-📘 12. Trabalho
+●id_curso
 
-Representa trabalhos ou entregas de atividades acadêmicas.
+Relacionamentos
 
-Campos: id_trabalho, título, descrição, data_entrega, valor_maximo, id_disciplina
-Relacionamento:
+Associada a Aluno_turma (N:N)
 
-Recebe notas via Nota_trabalho.
+Associada a disciplinas via Turma_disciplina
 
-📊 13. Nota_trabalho
+👨‍🎓🏫 8. Aluno_turma (Associação N:N)
 
-Armazena notas de cada aluno para um trabalho específico.
+Histórico e vinculação aluno–turma.
 
-Campos: id_nota_trabalho, nota, id_trabalho, id_aluno
+Campos
+
+● id_aluno_turma
+
+● id_aluno
+
+● id_turma
+
+● situacao
+
+📘📚 9. Disciplina
+
+Materiais e conteúdos acadêmicos.
+
+Campos
+
+● id_disciplina
+
+● nome_disciplina
+
+● descricao
+
+● carga_horaria
+
+Relacionamentos
+
+Associada a professores via Professor_disciplina
+
+Associada a turmas via Turma_disciplina
+
+Gera Avaliações
+
+Possui Aulas gravadas
+
+🧑‍🏫📚 10. Professor_disciplina (Associação N:N)
+
+Relaciona professores às disciplinas que ministram.
+
+🏫📚 11. Turma_disciplina (Associação N:N)
+
+Une turmas e disciplinas, indicando quando e onde a disciplina está sendo ofertada.
+
+Campos
+
+● id_turma_disciplina
+
+● id_turma
+
+● id_disciplina
+
+● id_professor
+
+● ano_letivo
+
+📝 12. Avaliação
+
+Provas, trabalhos, atividades avaliativas.
+
+Campos
+
+● id_avaliacao
+
+● id_disciplina
+
+● tipo
+
+● titulo
+
+● peso
+
+Relacionamentos
+
+Associada à tabela Nota
+
+📊 13. Nota
+
+Armazena o valor da nota do aluno em uma avaliação.
+
+Campos
+
+● id_nota
+
+● id_avaliacao
+
+● id_aluno
+
+● valor_nota
 
 🎥 14. Aula_gravada
 
-Armazena informações sobre videoaulas.
+Materiais audiovisuais disponibilizados para a disciplina.
 
-Campos: id_aula, título, descrição, url_video, data_postagem, id_disciplina
+Campos
 
-📝 15. Atividade
+● id_aula
 
-Representa atividades extras ou exercícios postados para o aluno.
+● id_disciplina
 
-Campos: id_atividade, título, descrição, data_publicacao, data_limite, pontuacao_maxima, id_disciplina
+● titulo
 
-🔗 Relações Principais (Resumo)
+● descricao
 
-Usuário → Aluno / Professor / Coordenador / Responsável
+● url_video
 
-Aluno ↔ Turma (N:N via Aluno_turma)
-
-Professor ↔ Disciplina (N:N via Professor_disciplina)
-
-Disciplina → Provas, Trabalhos, Aulas Gravadas, Atividades
-
-Aluno → Notas de provas e trabalhos
+data_postagem
