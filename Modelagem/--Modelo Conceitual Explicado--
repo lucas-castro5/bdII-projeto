@@ -1,0 +1,183 @@
+🧩 1. Visão Geral do Modelo Conceitual
+
+O Modelo Conceitual representa como o sistema entende o mundo real, isto é, como os elementos (entidades) se relacionam entre si.
+Dentre as entidades principais, destacam-se:
+
+● Usuário
+
+● Aluno
+
+● Responsável
+
+● Professor
+
+● Coordenador
+
+● Curso
+
+● Turma
+
+● Disciplina
+
+● Avaliação
+
+● Nota
+
+● Aula Gravada
+
+As relações modeladas incluem:
+pertence, contém, gera, ministra, recebe, coordena, entre outras.
+
+🔍 2. Explicação das Entidades do Modelo Conceitual
+👤 2.1 Usuário
+
+Representa qualquer pessoa cadastrada no sistema.
+É uma entidade genérica, da qual derivam:
+
+● Aluno
+
+● Professor
+
+● Coordenador
+
+● Responsável
+
+Isso permite padronização de login, dados pessoais e rastreabilidade.
+
+👨‍👩‍👦 2.2 Responsável
+
+Ligado a um ou mais alunos.
+Relacionamento:
+
+Responsável – Tem – Aluno → (1,1) para (1,N)
+
+O sistema considera que cada aluno tem obrigatoriamente um responsável.
+
+🎓 2.3 Aluno
+
+Elemento central do sistema acadêmico.
+
+Relacionamentos principais:
+
+Possui um usuário
+
+Pertence a uma ou várias turmas
+
+Recebe notas
+
+Está vinculado a um responsável
+
+🧑‍🏫 2.4 Professor
+
+Responsável por ministrar disciplinas.
+
+Relacionamentos:
+
+Professor – Ministra – Disciplina (1,N)
+
+Associado a Usuário
+
+🧑‍💼 2.5 Coordenador
+
+Gerencia Cursos.
+
+Relacionamentos:
+
+Coordenador – Coordena – Curso (1,N)
+
+Associado a Usuário
+
+🎓📚 2.6 Curso
+
+Conjunto de disciplinas e turmas.
+
+Relacionamentos:
+
+É coordenado por um Coordenador
+
+Possui várias turmas
+
+🏫 2.7 Turma
+
+Agrupa alunos.
+
+Relacionamentos:
+
+Aluno – Pertence – Turma (N,N)
+(modelado lógico como Aluno_turma)
+
+Está vinculada a um curso
+
+📘 2.8 Disciplina
+
+Representa os conteúdos ministrados.
+
+Relacionamentos:
+
+Ministração por professores
+
+Contém:
+
+● Avaliações
+
+● Aulas Gravadas
+
+● Atividades
+
+📝 2.9 Avaliação
+
+Abrange qualquer instrumento avaliativo: trabalho, prova ou atividades.
+
+Relacionamentos:
+
+Associada a uma disciplina
+
+Gera notas
+
+🧮 2.10 Nota
+
+Vincula a avaliação ao aluno, informando o desempenho.
+
+Relacionamento:
+
+Avaliação – Gera – Nota → (1,1) para (1,N)
+
+🎥 2.11 Aula Gravada
+
+Recurso audiovisual ligado à disciplina.
+
+Relacionamentos:
+
+Uma disciplina contém várias aulas gravadas.
+
+🔗 3. Relações Importantes
+
+Relação	Finalidade
+Usuário → Aluno/Professor/Responsável/Coordenador	Herança / especialização
+Aluno ↔ Turma	Histórico escolar
+Professor ↔ Disciplina	Tabela associativa
+Disciplina → Avaliação/Atividade/Aula	Conteúdo pedagógico
+Avaliação → Nota	Desempenho do aluno
+Coordenador → Curso	Gestão acadêmica
+
+🧠 4. Normalização 3FN
+
+O Modelo Conceitual foi traduzido corretamente para o Modelo Lógico, mantendo:
+
+Cardinalidades
+
+Entidades
+
+Tabelas associativas (N:N)
+
+Dependências funcionais adequadas
+
+As tabelas resultantes encontram-se na 3ª Forma Normal (3FN) pois:
+
+Cada atributo depende da chave primária
+
+Não há dependências transitivas (de chaves que não sejam PK ou FK)
+
+Não há redundância indevida
+
+As tabelas associativas resolvem relacionamentos N:N
