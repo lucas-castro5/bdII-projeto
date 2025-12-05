@@ -24,7 +24,7 @@ Campos principais
 
 ● data_cadastro
 
-Relacionamentos
+Relacionamentos:
 
 Pode ser: Aluno, Professor, Coordenador ou Responsável.
 
@@ -38,7 +38,7 @@ Campos
 
 ● parentesco
 
-Relacionamento
+Relacionamento:
 
 Associado ao Aluno via id_responsavel.
 
@@ -62,7 +62,7 @@ Campos
 
 ● id_responsavel
 
-Relacionamentos
+Relacionamentos:
 
 Pertence a turmas via Aluno_turma (N:N)
 
@@ -84,7 +84,7 @@ Campos
 
 ● id_usuario
 
-Relacionamentos
+Relacionamentos:
 
 Associado a disciplinas via Professor_disciplina
 
@@ -120,7 +120,7 @@ Campos
 
 ● id_coordenador
 
-Relacionamentos
+Relacionamentos:
 
 Possui Turmas
 
@@ -144,7 +144,7 @@ Campos
 
 ●id_curso
 
-Relacionamentos
+Relacionamentos:
 
 Associada a Aluno_turma (N:N)
 
@@ -178,7 +178,7 @@ Campos
 
 ● carga_horaria
 
-Relacionamentos
+Relacionamentos:
 
 Associada a professores via Professor_disciplina
 
@@ -224,7 +224,7 @@ Campos
 
 ● peso
 
-Relacionamentos
+Relacionamentos:
 
 Associada à tabela Nota
 
@@ -258,4 +258,4 @@ Campos
 
 ● url_video
 
-data_postagem
+● data_postagem
