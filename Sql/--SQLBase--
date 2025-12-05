@@ -51,7 +51,7 @@ CREATE TABLE coordenador(
 
  -- 6) Turma
  CREATE TABLE turma (
-    id_turma SERIAL PRIMARY KEY,
+    id_turma INT PRIMARY KEY,
     nome_turma VARCHAR(50) NOT NULL,
     ano_letivo INT NOT NULL,
     turno VARCHAR(10) CHECK (turno IN ('manha','tarde','noite')),
@@ -61,7 +61,7 @@ CREATE TABLE coordenador(
 
 -- 7) Aluno_Turma
 CREATE TABLE aluno_turma (
-    id_aluno_turma SERIAL PRIMARY KEY,
+    id_aluno_turma INT PRIMARY KEY,
     id_aluno INT,
     id_turma INT,
     ano_letivo INT NOT NULL,
@@ -73,7 +73,7 @@ CREATE TABLE aluno_turma (
 
 -- 8) Disciplina
 CREATE TABLE disciplina (
-    id_disciplina SERIAL PRIMARY KEY,
+    id_disciplina INT PRIMARY KEY,
     id_turma INT,
     nome_disciplina VARCHAR(100) NOT NULL,
     descricao TEXT,
@@ -94,7 +94,7 @@ CREATE TABLE professor_disciplina (
 
 -- 10) Aula_Gravada
 CREATE TABLE aula_gravada (
-    id_aula SERIAL PRIMARY KEY,
+    id_aula INT PRIMARY KEY,
     id_disciplina INT,
     titulo VARCHAR(150),
     descricao TEXT,
@@ -104,63 +104,43 @@ CREATE TABLE aula_gravada (
 );
 -- Armazena as aulas em video disponibilizando aos alunos
 
--- 11) Atividade
-CREATE TABLE atividade (
-    id_atividade INT PRIMARY KEY,
-    id_disciplina INT,
-    titulo VARCHAR(150),
-    descricao TEXT,
-    data_publicacao DATE,
-    data_limite DATE,
-    pontuacao_maxima DECIMAL(5,2),
+-- 11) Curso
+CREATE TABLE curso (
+    id_curso INT PRIMARY KEY,
+    nome_curso VARCHAR(100),
+    carga_horaria_total FLOAT,
+    id_coordenador INTEGER,
+    FOREIGN KEY (id_coordenador) REFERENCES coordenador(id_coordenador)
+);
+
+-- 12) Avaliação
+CREATE TABLE avaliacao (
+    id_avaliacao INT PRIMARY KEY,
+    id_disciplina INTEGER,
+    tipo VARCHAR(20),
+    titulo VARCHAR(100),
+    peso INTEGER,
     FOREIGN KEY (id_disciplina) REFERENCES disciplina(id_disciplina)
 );
--- Armazena as atividades vinculadas as disciplinas
 
--- 12) Prova_Online
-CREATE TABLE prova_online (
-    id_prova INT PRIMARY KEY,
-    id_disciplina INT,
-    titulo VARCHAR(150),
-    descricao TEXT,
-    data_prova DATE,
-    valor_maximo DECIMAL(5,2),
-    FOREIGN KEY (id_disciplina) REFERENCES disciplina(id_disciplina)
-);
--- Registra as avaliações relacionadas as disciplinas
-
-
--- 13) Nota_Prova
-CREATE TABLE nota_prova (
-    id_nota_prova INT PRIMARY KEY,
-    id_prova INT,
-    id_aluno INT,
-    nota DECIMAL(5,2),
-    FOREIGN KEY (id_prova) REFERENCES prova_online(id_prova),
+-- 13) Nota
+CREATE TABLE nota (
+    id_nota INT PRIMARY KEY,
+    id_avaliacao INTEGER,
+    id_aluno INTEGER,
+    valor_nota NUMERIC(5,2),
+    FOREIGN KEY (id_avaliacao) REFERENCES avaliacao(id_avaliacao),
     FOREIGN KEY (id_aluno) REFERENCES aluno(id_aluno)
 );
--- Garante que os registros estejam vinculados a um aluno e a disciplinas validas
 
--- 14) Trabalho
-CREATE TABLE trabalho (
-    id_trabalho INT PRIMARY KEY,
-    id_disciplina INT,
-    titulo VARCHAR(150),
-    descricao TEXT,
-    data_entrega DATE,
-    valor_maximo DECIMAL(5,2),
-    FOREIGN KEY (id_disciplina) REFERENCES disciplina(id_disciplina)
+-- 14) Turma_Disciplina
+CREATE TABLE turma_disciplina (
+    id_turma_disciplina INT PRIMARY KEY,
+    id_turma INTEGER,
+    id_disciplina INTEGER,
+    id_professor INTEGER,
+    ano_letivo VARCHAR(10),
+    FOREIGN KEY (id_turma) REFERENCES turma(id_turma),
+    FOREIGN KEY (id_disciplina) REFERENCES disciplina(id_disciplina),
+    FOREIGN KEY (id_professor) REFERENCES professor(id_professor)
 );
--- Armazena Trabalhos avaliativos Vinculados as disciplinas Validas
-
-
--- 15) Nota_Trabalho
-CREATE TABLE nota_trabalho (
-    id_nota_trabalho INT PRIMARY KEY,
-    id_trabalho INT,
-    id_aluno INT,
-    nota DECIMAL(5,2),
-    FOREIGN KEY (id_trabalho) REFERENCES trabalho(id_trabalho),
-    FOREIGN KEY (id_aluno) REFERENCES aluno(id_aluno)
-);
--- Registra o desempenho dos alunos nos trabalhos
