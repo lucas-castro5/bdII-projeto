@@ -14,7 +14,7 @@ CREATE INDEX idx_nota_prova_busca ON nota_prova(id_prova, id_aluno);
 (regra de negócio e login), além de acelerar a busca no login.
 -- Tabela: usuario | Coluna: email
 CREATE UNIQUE INDEX idx_usuario_email ON usuario(email);
-💡 Para o Relatório (Print do EXPLAIN):
+ Para o Relatório (Print do EXPLAIN):
 Rode isto antes e depois de criar o índice idx_usuario_nome e tire print da diferença no
 campo "type" ou "rows":
 EXPLAIN SELECT * FROM usuario WHERE nome = 'Joao Silva';
