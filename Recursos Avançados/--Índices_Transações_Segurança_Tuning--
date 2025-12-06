@@ -1,1 +1,114 @@
-
+: Recursos Avançados (Script Final)
+1. Índices (Otimização de Busca)
+Objetivo: Acelerar buscas frequentes que hoje seriam lentas (Full Table Scan).
+-- 1.1. Índice Simples
+-- Cenário: A busca por alunos pelo nome é a operação mais comum na secretaria.
+-- Tabela: usuario | Coluna: nome
+CREATE INDEX idx_usuario_nome ON usuario(nome);
+-- 1.2. Índice Composto
+-- Cenário: Professores filtram notas frequentemente por prova e aluno específico.
+-- Tabela: nota_prova | Colunas: id_prova, id_aluno
+CREATE INDEX idx_nota_prova_busca ON nota_prova(id_prova, id_aluno);
+-- 1.3. Índice Único
+-- Cenário: O sistema precisa garantir que não existam dois usuários com o mesmo e-mail
+(regra de negócio e login), além de acelerar a busca no login.
+-- Tabela: usuario | Coluna: email
+CREATE UNIQUE INDEX idx_usuario_email ON usuario(email);
+💡 Para o Relatório (Print do EXPLAIN):
+Rode isto antes e depois de criar o índice idx_usuario_nome e tire print da diferença no
+campo "type" ou "rows":
+EXPLAIN SELECT * FROM usuario WHERE nome = 'Joao Silva';
+2. Transações (ACID)
+Objetivo: Garantir integridade dos dados em operações complexas.
+Cenário A: Sucesso (COMMIT)
+Situação: Um aluno entregou um trabalho e o sistema deve registrar a entrega e já lançar
+uma nota provisória (0.0) para ser alterada depois. As duas coisas devem acontecer ou
+nenhuma.
+START TRANSACTION;
+-- 1. Inserir o trabalho (caso fosse dinâmico) ou registrar a entrega (simulação)
+-- Vamos supor atualização da data de entrega em um cenário real, mas aqui faremos Insert
+de Nota
+INSERT INTO nota_trabalho (id_nota_trabalho, id_trabalho, id_aluno, nota)
+VALUES (100, 1, 1, 0.0); -- ID 100 fictício, ajuste conforme seu banco
+-- 2. Atualizar status do aluno na turma (exemplo fictício de lógica de negócio)
+UPDATE aluno_turma SET situacao = 'matriculado' WHERE id_aluno = 1;
+COMMIT;
+-- O sistema confirma que ambas as operações foram salvas.
+Cenário B: Falha Controlada (ROLLBACK)
+Situação: Tentar lançar uma nota para um aluno que não existe (erro de integridade),
+desfazendo qualquer operação anterior.
+START TRANSACTION;
+-- 1. Tenta atualizar algo válido
+UPDATE disciplina SET carga_horaria = 80 WHERE id_disciplina = 1;
+-- 2. Tenta inserir nota para aluno ID 9999 (que não existe)
+INSERT INTO nota_prova (id_nota_prova, id_prova, id_aluno, nota)
+VALUES (200, 1, 9999, 10.0);
+-- Como vai dar erro de chave estrangeira (FK), você executa:
+ROLLBACK;
+-- Verifique que a carga horária da disciplina VOLTOU ao valor original.
+Demonstração de Isolamento (LOCK)
+Abra duas abas/janelas do seu gerenciador de banco de dados (Sessão 1 e Sessão 2).
+* Sessão 1:
+START TRANSACTION;
+UPDATE turma SET nome_turma = 'Turma Bloqueada' WHERE id_turma = 1;
+-- NÃO dê commit ainda!
+* Sessão 2:
+SELECT * FROM turma WHERE id_turma = 1;
+-- O select vai travar (ficar carregando) até a Sessão 1 dar COMMIT ou ROLLBACK.
+Isso prova que o banco está protegendo o dado durante a edição.
+3. Segurança (Controle de Acesso)
+Objetivo: Princípio do menor privilégio.
+-- 3.1. Criação dos Usuários
+CREATE USER 'admin_ead'@'localhost' IDENTIFIED BY 'admin123';
+CREATE USER 'professor_user'@'localhost' IDENTIFIED BY 'prof123';
+CREATE USER 'auditor_user'@'localhost' IDENTIFIED BY 'audit123';
+-- 3.2. Concessão de Privilégios (GRANT)
+-- Admin: Pode tudo
+GRANT ALL PRIVILEGES ON *.* TO 'admin_ead'@'localhost';
+-- Professor: Pode ver tudo, mas só insere/altera notas e atividades
+GRANT SELECT ON banco_ead.* TO 'professor_user'@'localhost'; -- Ajuste "banco_ead"
+para o nome do seu banco
+GRANT INSERT, UPDATE ON banco_ead.nota_prova TO 'professor_user'@'localhost';
+GRANT INSERT, UPDATE ON banco_ead.nota_trabalho TO 'professor_user'@'localhost';
+GRANT INSERT, UPDATE ON banco_ead.atividade TO 'professor_user'@'localhost';
+-- Auditor: Apenas leitura (SELECT) em tudo para gerar relatórios
+GRANT SELECT ON banco_ead.* TO 'auditor_user'@'localhost';
+-- 3.3. Revogação (REVOKE)
+-- Auditor não deve ver as senhas dos usuários
+REVOKE SELECT ON banco_ead.usuario FROM 'auditor_user'@'localhost';
+FLUSH PRIVILEGES;
+Demonstração de Bloqueio:
+Logue como auditor_user e tente deletar um aluno:
+DELETE FROM aluno WHERE id_aluno = 1;
+-- Erro esperado: DELETE command denied to user 'auditor_user'. (Tire print disso!)
+4. Desempenho e Tuning (Otimização)
+Objetivo: Pegar uma consulta ruim e deixá-la rápida.
+Consulta Lenta 1: O problema do OR e falta de JOIN
+Cenário: Buscar alunos que tiraram nota baixa em prova OU trabalho.
+* Ruim (Sem Tuning):
+SELECT nome FROM usuario WHERE id_usuario IN (
+SELECT id_aluno FROM nota_prova WHERE nota < 6
+) OR id_usuario IN (
+SELECT id_aluno FROM nota_trabalho WHERE nota < 6
+);
+* Otimizada (Com JOIN e UNION - Mais eficiente para índices):
+SELECT u.nome
+FROM usuario u
+JOIN nota_prova np ON u.id_usuario = np.id_aluno
+WHERE np.nota < 6
+UNION
+SELECT u.nome
+FROM usuario u
+JOIN nota_trabalho nt ON u.id_usuario = nt.id_aluno
+WHERE nt.nota < 6;
+Consulta Lenta 2: O problema do LIKE no início
+Cenário: Buscar disciplinas que contenham "Web" no nome.
+* Ruim (Full Table Scan garantido):
+SELECT * FROM disciplina WHERE nome_disciplina LIKE '%Web%';
+Explicação: O % no começo impede o uso de índices B-Tree normais.
+* Otimizada:
+SELECT id_disciplina, nome_disciplina FROM disciplina WHERE nome_disciplina LIKE
+'Web%';
+Melhoria: Ao remover o % do início (assumindo que a busca comece com a palavra), o
+banco consegue usar índices. Se não for possível remover, a solução técnica seria sugerir
+um Índice Full-Text (recurso avançado).
