@@ -1,159 +1,145 @@
-1. Índices (Performance de Busca)
-Índices são vitais para acelerar consultas de leitura, embora tenham um pequeno custo na escrita.
+-- ===================================================
+-- 1. ÍNDICES (Melhoria de Performance de Busca)
+-- ===================================================
 
-SQL
+-- A) Teste Antes do Índice (Para comparação no relatório)
+-- Rode esta linha e tire print do "Execution Time" e "Seq Scan"
+EXPLAIN ANALYZE SELECT * FROM usuario WHERE nome = 'João Silva';
 
--- A) INDICE SIMPLES
--- Cenário: Buscas frequentes pelo nome do usuário no sistema administrativo.
--- Antes do índice, o banco faria um "Seq Scan" (leitura sequencial) em toda a tabela.
+-- B) Criação dos Índices
+-- 1. Índice Simples: Acelera a busca de alunos e professores pelo nome
 CREATE INDEX idx_usuario_nome ON usuario(nome);
 
--- Demonstração de eficácia (Conceitual):
--- EXPLAIN ANALYZE SELECT * FROM usuario WHERE nome = 'João Silva';
+-- 2. Índice Composto: Otimiza filtros de notas por prova e aluno específico
+--    (Baseado na tabela nota_prova que já tem dados)
+CREATE INDEX idx_nota_prova_busca ON nota_prova(id_prova, id_aluno);
+
+-- 3. Índice Único: Garante integridade e acelera login
+CREATE UNIQUE INDEX idx_usuario_email ON usuario(email);
+
+-- 4. [EXTRA] Índice em FK: Acelera drasticamente os JOINs entre Aluno e Turma
+CREATE INDEX idx_fk_aluno_turma ON aluno_turma(id_aluno);
+
+-- C) Teste Depois do Índice (Prova da melhoria)
+-- O "Seq Scan" deve virar "Index Scan" ou "Bitmap Heap Scan"
+EXPLAIN ANALYZE SELECT * FROM usuario WHERE nome = 'João Silva';
 
 
--- B) INDICE COMPOSTO
--- Cenário: Relatórios que buscam alunos em uma turma específica com uma situação específica (ex: Aprovados na turma 1).
--- A ordem importa: id_turma primeiro pois é o filtro mais restritivo.
-CREATE INDEX idx_aluno_turma_situacao ON aluno_turma(id_turma, situacao);
+-- ===================================================
+-- 2. TRANSAÇÕES (Controle ACID)
+-- ===================================================
 
--- Demonstração de eficácia:
--- EXPLAIN ANALYZE SELECT * FROM aluno_turma WHERE id_turma = 1 AND situacao = 'aprovado';
-
-
--- C) INDICE ÚNICO
--- Cenário: Garantir que não existam dois vídeos com a mesma URL na tabela de aulas gravadas.
--- Isso funciona como uma restrição de integridade e índice de performance simultaneamente.
-CREATE UNIQUE INDEX idx_aula_url_video ON aula_gravada(url_video);
-
-2. Transações (Integridade dos Dados)
-As transações garantem que um conjunto de operações ocorra totalmente ou não ocorra (ACID).
-
-SQL
-
--- CENÁRIO 1: COMMIT (Sucesso)
--- Objetivo: Transferir um aluno de turma e registrar isso no histórico (simulado) atomicamente.
+-- Cenário A: Transação com Sucesso (COMMIT)
 BEGIN;
-    -- 1. Atualiza a turma do aluno para 'trancado' na turma antiga
-    UPDATE aluno_turma 
-    SET situacao = 'trancado' 
-    WHERE id_aluno = 60 AND id_turma = 1;
+    -- Passo 1: Insere uma nota de trabalho (ID 100 fictício para teste)
+    INSERT INTO nota_trabalho (id_nota_trabalho, id_trabalho, id_aluno, nota) 
+    VALUES (100, 1, 60, 0.0); -- Aluno 60 (João Silva)
 
-    -- 2. Insere o aluno na nova turma
-    INSERT INTO aluno_turma (id_aluno_turma, id_aluno, id_turma, ano_letivo, situacao) 
-    VALUES (999, 60, 2, 2023, 'matriculado'); -- ID 999 simulado
-
-    -- Se não houve erro, confirma ambas as alterações
+    -- Passo 2: Atualiza status do aluno (Simulação de regra de negócio)
+    UPDATE aluno SET status_aluno = 'ativo' WHERE id_aluno = 60;
 COMMIT;
+-- TIRE PRINT: Faça um SELECT na tabela nota_trabalho para mostrar que gravou.
 
-
--- CENÁRIO 2: ROLLBACK (Erro/Cancelamento)
--- Objetivo: Tentar deletar uma disciplina crítica. Se percebermos o erro, desfazemos.
+-- Cenário B: Transação com Falha (ROLLBACK)
 BEGIN;
-    -- Tentativa de deletar matemática
-    DELETE FROM disciplina WHERE nome_disciplina = 'Matemática I';
-    
-    -- Verificamos que isso afetaria muitas outras tabelas ou foi um erro lógico
-    -- O comando abaixo desfaz tudo o que foi feito desde o BEGIN
+    -- Passo 1: Tenta alterar o nome de uma turma (operação válida)
+    UPDATE turma SET nome_turma = 'Turma Teste Rollback' WHERE id_turma = 1;
+
+    -- Passo 2: Tenta inserir nota para aluno inexistente (ID 9999)
+    -- Isso vai gerar erro de Foreign Key
+    INSERT INTO nota_prova (id_nota_prova, id_prova, id_aluno, nota) 
+    VALUES (999, 1, 9999, 10.0); 
+
+    -- Em caso de erro, executamos:
 ROLLBACK;
+-- TIRE PRINT: Mostre que o nome da turma VOLTOU a ser "1º Ano A" (ou o original).
+
+-- Cenário C: Demonstração de Isolamento/Lock (Requer 2 abas do Query Tool)
+-- ABA 1:
+-- BEGIN;
+-- UPDATE turma SET nome_turma = 'Travando...' WHERE id_turma = 2;
+-- (Não dê commit ainda!)
+
+-- ABA 2:
+-- SELECT * FROM turma WHERE id_turma = 2;
+-- (O select vai ficar aguardando infinitamente. TIRE PRINT DAS DUAS TELAS).
 
 
--- CENÁRIO 3: LOCK (Concorrência)
--- Objetivo: Bloquear a linha de uma turma para contagem de vagas, impedindo que outro coordenador edite ao mesmo tempo.
-BEGIN;
-    -- O 'FOR UPDATE' trava essas linhas específicas até o fim da transação
-    SELECT * FROM turma WHERE id_turma = 1 FOR UPDATE;
+-- ===================================================
+-- 3. SEGURANÇA (Usuários e Permissões - PostgreSQL)
+-- ===================================================
 
-    -- Realiza atualizações de status...
-    UPDATE turma SET status_turma = 'ativa' WHERE id_turma = 1;
-COMMIT; -- Libera o travamento
+-- A) Criação dos Roles (Usuários)
+-- Nota: No PostgreSQL usamos CREATE ROLE ou USER com LOGIN
+DROP USER IF EXISTS admin_ead;
+DROP USER IF EXISTS professor_user;
+DROP USER IF EXISTS auditor_user;
 
-3. Segurança (DCL - Data Control Language)
-Criação de papéis com níveis de acesso distintos.
+CREATE USER admin_ead WITH PASSWORD 'Admin123';
+CREATE USER professor_user WITH PASSWORD 'Prof123';
+CREATE USER auditor_user WITH PASSWORD 'Audit123';
 
-SQL
+-- B) Concessão de Privilégios (GRANT)
 
--- 1. Criação dos Usuários (Roles)
-CREATE ROLE u_coordenador WITH LOGIN PASSWORD 'senha_coord_123';
-CREATE ROLE u_professor WITH LOGIN PASSWORD 'senha_prof_123';
-CREATE ROLE u_aluno WITH LOGIN PASSWORD 'senha_aluno_123';
+-- --- ADMIN ---
+-- Permissão total no esquema public
+GRANT ALL PRIVILEGES ON DATABASE postgres TO admin_ead; -- Troque 'postgres' pelo nome do seu banco se for diferente
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO admin_ead;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO admin_ead;
 
--- 2. Concessão de Privilégios (GRANT)
+-- --- PROFESSOR ---
+-- Pode conectar e usar o esquema
+GRANT CONNECT ON DATABASE postgres TO professor_user;
+GRANT USAGE ON SCHEMA public TO professor_user;
 
--- COORDENADOR: Acesso total às tabelas de estrutura escolar
-GRANT ALL PRIVILEGES ON turma, disciplina, curso TO u_coordenador;
-GRANT SELECT, INSERT, UPDATE ON usuario, aluno, professor TO u_coordenador;
+-- Pode fazer SELECT em tudo para consultar
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO professor_user;
 
--- PROFESSOR: Pode ver alunos e turmas, mas só pode INSERIR notas e aulas
-GRANT SELECT ON aluno, turma, disciplina TO u_professor;
-GRANT INSERT, UPDATE ON nota_prova, nota_trabalho, aula_gravada TO u_professor;
+-- Pode INSERIR e ATUALIZAR apenas em tabelas de operação diária
+GRANT INSERT, UPDATE ON nota_prova TO professor_user;
+GRANT INSERT, UPDATE ON nota_trabalho TO professor_user;
+GRANT INSERT, UPDATE ON atividade TO professor_user;
+GRANT INSERT, UPDATE ON aula_gravada TO professor_user;
 
--- ALUNO: Acesso apenas de leitura nas suas notas e aulas (Via Views é mais seguro, mas aqui direto na tabela)
-GRANT SELECT ON aula_gravada, horario_aula TO u_aluno;
+-- [IMPORTANTE] Permissão nas Sequences (se houverem campos SERIAL futuramente)
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO professor_user;
 
--- 3. Revogação de Privilégios (REVOKE)
--- Por segurança, removemos a permissão do aluno de ver dados sensíveis de outros usuários
-REVOKE ALL ON usuario FROM u_aluno;
--- Bloqueia professor de deletar turmas acidentalmente
-REVOKE DELETE ON turma FROM u_professor;
+-- --- AUDITOR ---
+-- Apenas leitura (SELECT)
+GRANT CONNECT ON DATABASE postgres TO auditor_user;
+GRANT USAGE ON SCHEMA public TO auditor_user;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO auditor_user;
 
-4. Desempenho e Tuning (Otimização)
-Otimização da VIEW 3 (Média dos Alunos), que no script original usa Correlated Subqueries (subselects dentro do SELECT para cada linha), o que é pesado para o banco.
+-- C) Revogação (REVOKE)
+-- Segurança: Auditor não deve visualizar dados sensíveis (Senha/CPF) da tabela usuario
+REVOKE SELECT ON usuario FROM auditor_user;
 
-Consulta Lenta (Original Conceptual):
+-- D) Demonstração de Bloqueio
+-- Tente rodar o comando abaixo logado como 'auditor_user':
+-- DELETE FROM aluno WHERE id_aluno = 60;
+-- TIRE PRINT DO ERRO: "permission denied for table aluno"
 
-SQL
 
--- A query original executa 4 SELECTs internos para CADA linha de aluno/disciplina.
--- Se houver 1000 alunos e 10 disciplinas, são 40.000 execuções internas.
-SELECT 
-    u.nome, d.nome_disciplina,
-    (SELECT AVG(nota) FROM nota_prova...) + (SELECT AVG(nota) FROM nota_trabalho...) / 2
-FROM aluno a ...
-Consulta Otimizada (Uso de CTEs e JOINs): Esta versão pré-calcula as médias uma única vez e depois junta os resultados.
+-- ===================================================
+-- 4. DESEMPENHO E TUNING (Otimização)
+-- ===================================================
 
-SQL
+-- Consulta Lenta 1: Uso de OR (Índices geralmente ignorados)
+-- ANTES:
+EXPLAIN ANALYZE 
+SELECT nome FROM usuario WHERE id_usuario = 60 OR id_usuario = 61;
 
-CREATE OR REPLACE VIEW vw_medias_alunos_otimizada AS
-WITH media_provas AS (
-    -- Calcula média de provas por aluno e disciplina de uma só vez
-    SELECT 
-        np.id_aluno, 
-        po.id_disciplina, 
-        AVG(np.nota) as m_prova
-    FROM nota_prova np
-    JOIN prova_online po ON np.id_prova = po.id_prova
-    GROUP BY np.id_aluno, po.id_disciplina
-),
-media_trabalhos AS (
-    -- Calcula média de trabalhos por aluno e disciplina de uma só vez
-    SELECT 
-        nt.id_aluno, 
-        tr.id_disciplina, 
-        AVG(nt.nota) as m_trabalho
-    FROM nota_trabalho nt
-    JOIN trabalho tr ON nt.id_trabalho = tr.id_trabalho
-    GROUP BY nt.id_aluno, tr.id_disciplina
-)
-SELECT 
-    u.nome AS aluno,
-    d.nome_disciplina,
-    -- COALESCE garante que se não houver nota, considera 0
-    (COALESCE(mp.m_prova, 0) + COALESCE(mt.m_trabalho, 0)) / 2 AS media_final,
-    CASE 
-        WHEN ((COALESCE(mp.m_prova, 0) + COALESCE(mt.m_trabalho, 0)) / 2) < 6 THEN 'Abaixo da Média'
-        ELSE 'OK'
-    END AS situacao
-FROM aluno a
-JOIN usuario u ON a.id_aluno = u.id_usuario
-JOIN aluno_turma atur ON a.id_aluno = atur.id_aluno
-JOIN turma t ON atur.id_turma = t.id_turma
-JOIN disciplina d ON t.id_turma = d.id_turma
--- LEFT JOIN garante que traga o aluno mesmo se ele não tiver notas ainda
-LEFT JOIN media_provas mp ON a.id_aluno = mp.id_aluno AND d.id_disciplina = mp.id_disciplina
-LEFT JOIN media_trabalhos mt ON a.id_aluno = mt.id_aluno AND d.id_disciplina = mt.id_disciplina;
-Comparativo de Tuning:
+-- DEPOIS (Otimizado com UNION - Melhor uso de índice PK):
+EXPLAIN ANALYZE 
+SELECT nome FROM usuario WHERE id_usuario = 60
+UNION
+SELECT nome FROM usuario WHERE id_usuario = 61;
+-- TIRE PRINT comparando o "Execution Time".
 
-Original: Complexidade O(N*M) - Executa subqueries repetidamente.
+-- Consulta Lenta 2: Uso de LIKE com % no início (Matador de performance)
+-- ANTES (Seq Scan - Lento):
+EXPLAIN ANALYZE SELECT * FROM disciplina WHERE nome_disciplina LIKE '%Matemática';
 
-Otimizada: Complexidade O(N) - Agrega primeiro, depois faz o match. Em grandes volumes de dados, essa versão será drasticamente mais rápida.
+-- DEPOIS (Index Scan/Bitmap Scan - Rápido - Removemos o % do início):
+EXPLAIN ANALYZE SELECT * FROM disciplina WHERE nome_disciplina LIKE 'Matemática%';
+-- TIRE PRINT comparando os resultados.
