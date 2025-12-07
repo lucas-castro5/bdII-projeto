@@ -1,76 +1,33 @@
--- ===================================================
--- 1. ÍNDICES (Melhoria de Performance de Busca)
--- ===================================================
+-- ===========================================
+-- 1. ÍNDICES (Melhoria de Performance)
+-- ===========================================
 
--- A) Teste Antes do Índice (Para comparação no relatório)
--- Rode esta linha e tire print do "Execution Time" e "Seq Scan"
+-- A) Teste Antes (pegar print do Execution Plan)
 EXPLAIN ANALYZE SELECT * FROM usuario WHERE nome = 'João Silva';
 
--- B) Criação dos Índices
--- 1. Índice Simples: Acelera a busca de alunos e professores pelo nome
+-- B) Índices adequados ao SEU banco
+
+-- 1. Índice simples no nome do usuário
 CREATE INDEX idx_usuario_nome ON usuario(nome);
 
--- 2. Índice Composto: Otimiza filtros de notas por prova e aluno específico
---    (Baseado na tabela nota_prova que já tem dados)
-CREATE INDEX idx_nota_prova_busca ON nota_prova(id_prova, id_aluno);
+-- 2. Índice composto para acelerar buscas em notas 
+-- (por prova e aluno)
+CREATE INDEX idx_nota_busca ON nota(id_avaliacao, id_aluno);
 
--- 3. Índice Único: Garante integridade e acelera login
+-- 3. Índice único no e-mail (melhora login)
 CREATE UNIQUE INDEX idx_usuario_email ON usuario(email);
 
--- 4. [EXTRA] Índice em FK: Acelera drasticamente os JOINs entre Aluno e Turma
+-- 4. Índice em FK da tabela aluno_turma
 CREATE INDEX idx_fk_aluno_turma ON aluno_turma(id_aluno);
 
--- C) Teste Depois do Índice (Prova da melhoria)
--- O "Seq Scan" deve virar "Index Scan" ou "Bitmap Heap Scan"
+-- C) Teste Depois do Índice
 EXPLAIN ANALYZE SELECT * FROM usuario WHERE nome = 'João Silva';
 
 
--- ===================================================
--- 2. TRANSAÇÕES (Controle ACID)
--- ===================================================
+-- ===========================================
+-- 3. SEGURANÇA (Usuários e Permissões)
+-- ===========================================
 
--- Cenário A: Transação com Sucesso (COMMIT)
-BEGIN;
-    -- Passo 1: Insere uma nota de trabalho (ID 100 fictício para teste)
-    INSERT INTO nota_trabalho (id_nota_trabalho, id_trabalho, id_aluno, nota) 
-    VALUES (100, 1, 60, 0.0); -- Aluno 60 (João Silva)
-
-    -- Passo 2: Atualiza status do aluno (Simulação de regra de negócio)
-    UPDATE aluno SET status_aluno = 'ativo' WHERE id_aluno = 60;
-COMMIT;
--- TIRE PRINT: Faça um SELECT na tabela nota_trabalho para mostrar que gravou.
-
--- Cenário B: Transação com Falha (ROLLBACK)
-BEGIN;
-    -- Passo 1: Tenta alterar o nome de uma turma (operação válida)
-    UPDATE turma SET nome_turma = 'Turma Teste Rollback' WHERE id_turma = 1;
-
-    -- Passo 2: Tenta inserir nota para aluno inexistente (ID 9999)
-    -- Isso vai gerar erro de Foreign Key
-    INSERT INTO nota_prova (id_nota_prova, id_prova, id_aluno, nota) 
-    VALUES (999, 1, 9999, 10.0); 
-
-    -- Em caso de erro, executamos:
-ROLLBACK;
--- TIRE PRINT: Mostre que o nome da turma VOLTOU a ser "1º Ano A" (ou o original).
-
--- Cenário C: Demonstração de Isolamento/Lock (Requer 2 abas do Query Tool)
--- ABA 1:
--- BEGIN;
--- UPDATE turma SET nome_turma = 'Travando...' WHERE id_turma = 2;
--- (Não dê commit ainda!)
-
--- ABA 2:
--- SELECT * FROM turma WHERE id_turma = 2;
--- (O select vai ficar aguardando infinitamente. TIRE PRINT DAS DUAS TELAS).
-
-
--- ===================================================
--- 3. SEGURANÇA (Usuários e Permissões - PostgreSQL)
--- ===================================================
-
--- A) Criação dos Roles (Usuários)
--- Nota: No PostgreSQL usamos CREATE ROLE ou USER com LOGIN
 DROP USER IF EXISTS admin_ead;
 DROP USER IF EXISTS professor_user;
 DROP USER IF EXISTS auditor_user;
@@ -79,67 +36,66 @@ CREATE USER admin_ead WITH PASSWORD 'Admin123';
 CREATE USER professor_user WITH PASSWORD 'Prof123';
 CREATE USER auditor_user WITH PASSWORD 'Audit123';
 
--- B) Concessão de Privilégios (GRANT)
-
--- --- ADMIN ---
--- Permissão total no esquema public
-GRANT ALL PRIVILEGES ON DATABASE postgres TO admin_ead; -- Troque 'postgres' pelo nome do seu banco se for diferente
+----------------------------------------------------
+-- ADMIN - acesso total
+----------------------------------------------------
+GRANT ALL PRIVILEGES ON DATABASE postgres TO admin_ead;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO admin_ead;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO admin_ead;
 
--- --- PROFESSOR ---
--- Pode conectar e usar o esquema
+----------------------------------------------------
+-- PROFESSOR - acesso de operação diária
+----------------------------------------------------
 GRANT CONNECT ON DATABASE postgres TO professor_user;
 GRANT USAGE ON SCHEMA public TO professor_user;
 
--- Pode fazer SELECT em tudo para consultar
+-- SELECT em tudo
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO professor_user;
 
--- Pode INSERIR e ATUALIZAR apenas em tabelas de operação diária
-GRANT INSERT, UPDATE ON nota_prova TO professor_user;
-GRANT INSERT, UPDATE ON nota_trabalho TO professor_user;
-GRANT INSERT, UPDATE ON atividade TO professor_user;
+-- Pode lançar/editar notas e atividades
+GRANT INSERT, UPDATE ON nota TO professor_user;
 GRANT INSERT, UPDATE ON aula_gravada TO professor_user;
-
--- [IMPORTANTE] Permissão nas Sequences (se houverem campos SERIAL futuramente)
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO professor_user;
 
--- --- AUDITOR ---
--- Apenas leitura (SELECT)
+
+
+----------------------------------------------------
+-- AUDITOR - somente leitura
+----------------------------------------------------
 GRANT CONNECT ON DATABASE postgres TO auditor_user;
 GRANT USAGE ON SCHEMA public TO auditor_user;
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO auditor_user;
 
--- C) Revogação (REVOKE)
--- Segurança: Auditor não deve visualizar dados sensíveis (Senha/CPF) da tabela usuario
+-- Remover visualização de dados sensíveis
 REVOKE SELECT ON usuario FROM auditor_user;
 
--- D) Demonstração de Bloqueio
--- Tente rodar o comando abaixo logado como 'auditor_user':
--- DELETE FROM aluno WHERE id_aluno = 60;
--- TIRE PRINT DO ERRO: "permission denied for table aluno"
+----------------------------------------------------
+-- TESTE DE PERMISSÃO (rodar como auditor_user)
+----------------------------------------------------
+DELETE FROM aluno WHERE id_aluno = 60;
 
 
--- ===================================================
--- 4. DESEMPENHO E TUNING (Otimização)
--- ===================================================
+-- ===========================================
+-- 4. DESEMPENHO E TUNING
+-- ===========================================
 
--- Consulta Lenta 1: Uso de OR (Índices geralmente ignorados)
--- ANTES:
-EXPLAIN ANALYZE 
+-- Consulta Lenta 1 — OR
+-- Antes:
+EXPLAIN ANALYZE
 SELECT nome FROM usuario WHERE id_usuario = 60 OR id_usuario = 61;
 
--- DEPOIS (Otimizado com UNION - Melhor uso de índice PK):
-EXPLAIN ANALYZE 
+-- Depois (UNION usa PK → mais rápido)
+EXPLAIN ANALYZE
 SELECT nome FROM usuario WHERE id_usuario = 60
 UNION
 SELECT nome FROM usuario WHERE id_usuario = 61;
--- TIRE PRINT comparando o "Execution Time".
 
--- Consulta Lenta 2: Uso de LIKE com % no início (Matador de performance)
--- ANTES (Seq Scan - Lento):
-EXPLAIN ANALYZE SELECT * FROM disciplina WHERE nome_disciplina LIKE '%Matemática';
 
--- DEPOIS (Index Scan/Bitmap Scan - Rápido - Removemos o % do início):
-EXPLAIN ANALYZE SELECT * FROM disciplina WHERE nome_disciplina LIKE 'Matemática%';
--- TIRE PRINT comparando os resultados.
+-- Consulta Lenta 2 — LIKE com % no início
+-- Antes:
+EXPLAIN ANALYZE 
+SELECT * FROM disciplina WHERE nome_disciplina LIKE '%Matemática';
+
+-- Depois:
+EXPLAIN ANALYZE
+SELECT * FROM disciplina WHERE nome_disciplina LIKE 'Matemática%';
