@@ -15,16 +15,49 @@ SELECT status_aluno, COUNT(*) AS total
 FROM aluno
 GROUP BY status_aluno;
 
-SELECT d.nome_disciplina, COUNT(p.id_prova) AS qtd_provas
+SELECT d.nome_disciplina, COUNT(a.id_avaliacao) AS qtd_avaliacoes
 FROM disciplina d
-JOIN prova_online p ON d.id_disciplina = p.id_disciplina
-GROUP BY d.nome_disciplina
-HAVING COUNT(p.id_prova) > 1;
+LEFT JOIN avaliacao a ON d.id_disciplina = a.id_disciplina
+GROUP BY d.nome_disciplina;
 
-SELECT nome 
-FROM usuario 
+SELECT d.nome_disciplina, COUNT(a.id_avaliacao) AS qtd_avaliacoes
+FROM disciplina d
+JOIN avaliacao a ON d.id_disciplina = a.id_disciplina
+GROUP BY d.nome_disciplina
+HAVING COUNT(a.id_avaliacao) >= 1;
+
+SELECT nome
+FROM usuario
 WHERE id_usuario IN (
-    SELECT id_aluno 
-    FROM nota_prova 
-    WHERE nota > 8.0
+    SELECT id_aluno
+    FROM nota
+    WHERE valor_nota > 8.0
 );
+
+
+SELECT 
+    u.nome AS nome_aluno,
+    AVG(n.valor_nota) AS media_notas
+FROM nota n
+JOIN aluno a ON n.id_aluno = a.id_aluno
+JOIN usuario u ON a.id_aluno = u.id_usuario
+GROUP BY u.nome
+ORDER BY media_notas DESC;
+
+SELECT 
+    u.nome AS nome_professor,
+    d.nome_disciplina
+FROM professor p
+JOIN usuario u ON p.id_professor = u.id_usuario
+JOIN professor_disciplina pd ON p.id_professor = pd.id_professor
+JOIN disciplina d ON pd.id_disciplina = d.id_disciplina
+ORDER BY u.nome;
+
+SELECT 
+    t.nome_turma,
+    t.turno,
+    COUNT(at.id_aluno) AS total_alunos
+FROM turma t
+LEFT JOIN aluno_turma at ON t.id_turma = at.id_turma
+GROUP BY t.nome_turma, t.turno
+ORDER BY total_alunos DESC;
