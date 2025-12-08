@@ -1,11 +1,12 @@
-📘 Sistema de Ensino a Distância – Projeto de Banco de Dados
-📌 Sobre
+Sistema de Ensino a Distância – Projeto de Banco de Dados
+
+Sobre:
 
 Este projeto desenvolve um banco de dados completo para uma plataforma de Ensino a Distância (EAD), aplicando modelagem, implementação SQL, recursos avançados (views, triggers, functions), segurança e otimização.
 
 A empresa fictícia criada é a EduConnect, responsável por gerenciar alunos, professores, disciplinas, avaliações, coordenação e responsáveis.
 
-🎯 Objetivos
+Objetivos:
 
 Criar e normalizar o banco (DER, lógico, DDL).
 
@@ -17,7 +18,7 @@ Aplicar controle de concorrência, segurança e tuning.
 
 Produzir relatório técnico e scripts organizados.
 
-🧩 Entregáveis
+Entregáveis:
 
 Scripts SQL (criação → inserção → consultas → avançado).
 
@@ -27,14 +28,14 @@ Relatório final (ABNT).
 
 Slides de apresentação.
 
-📂 Estrutura (resumo)
+Estrutura: (resumo)
 /modelagem
 /sql
 /Consultas e Inserts
 /Recursos Avançados
 /relatorio
 
-👥 Integrantes
+Integrantes:
 
 Lucas Gabriel
 
