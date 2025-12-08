@@ -1,4 +1,4 @@
-📘 Explicação do Modelo Conceitual – Sistema Acadêmico online
+Explicação do Modelo Conceitual – Sistema Acadêmico online
 
 Este modelo conceitual foi elaborado utilizando uma abordagem Entidade-Relacionamento, priorizando clareza, coerência e aderência às regras de negócio acadêmicas.
 
@@ -15,7 +15,7 @@ Funcionalidades:
 9. Calcular média final baseada em três notas.
 10. Controlar permissões conforme tipo de usuário.
 
-🧩 1. Visão Geral do Modelo Conceitual
+1. Visão Geral do Modelo Conceitual
 
 O Modelo Conceitual representa como o sistema entende o mundo real, isto é, como os elementos (entidades) se relacionam entre si.
 Dentre as entidades principais, destacam-se:
@@ -45,8 +45,8 @@ Dentre as entidades principais, destacam-se:
 As relações modeladas incluem:
 pertence, contém, gera, ministra, recebe, coordena, entre outras.
 
-🔍 2. Explicação das Entidades do Modelo Conceitual
-👤 2.1 Usuário
+2. Explicação das Entidades do Modelo Conceitual
+2.1 Usuário
 
 Representa qualquer pessoa cadastrada no sistema.
 É uma entidade genérica, da qual derivam:
@@ -61,7 +61,7 @@ Representa qualquer pessoa cadastrada no sistema.
 
 Isso permite padronização de login, dados pessoais e rastreabilidade.
 
-👨‍👩‍👦 2.2 Responsável
+2.2 Responsável
 
 Ligado a um ou mais alunos.
 Relacionamento:
@@ -70,7 +70,7 @@ Responsável – Tem – Aluno → (1,1) para (1,N)
 
 O sistema considera que cada aluno tem obrigatoriamente um responsável.
 
-🎓 2.3 Aluno
+2.3 Aluno
 
 Elemento central do sistema acadêmico.
 
@@ -84,7 +84,7 @@ Recebe notas
 
 Está vinculado a um responsável
 
-🧑‍🏫 2.4 Professor
+2.4 Professor
 
 Responsável por ministrar disciplinas.
 
@@ -94,7 +94,7 @@ Professor – Ministra – Disciplina (1,N)
 
 Associado a Usuário
 
-🧑‍💼 2.5 Coordenador
+2.5 Coordenador
 
 Gerencia Cursos.
 
@@ -104,7 +104,7 @@ Coordenador – Coordena – Curso (1,N)
 
 Associado a Usuário
 
-🎓📚 2.6 Curso
+2.6 Curso
 
 Conjunto de disciplinas e turmas.
 
@@ -114,7 +114,7 @@ Relacionamentos:
 
 Possui várias turmas
 
-🏫 2.7 Turma
+2.7 Turma
 
 Agrupa alunos.
 
@@ -125,7 +125,7 @@ Aluno – Pertence – Turma (N,N)
 
 Está vinculada a um curso
 
-📘 2.8 Disciplina
+2.8 Disciplina
 
 Representa os conteúdos ministrados.
 
@@ -141,7 +141,7 @@ Contém:
 
 ● Atividades
 
-📝 2.9 Avaliação
+2.9 Avaliação
 
 Abrange qualquer instrumento avaliativo: trabalho, prova ou atividades.
 
@@ -151,7 +151,7 @@ Associada a uma disciplina
 
 Gera notas
 
-🧮 2.10 Nota
+2.10 Nota
 
 Vincula a avaliação ao aluno, informando o desempenho.
 
@@ -159,7 +159,7 @@ Relacionamento:
 
 Avaliação – Gera – Nota → (1,1) para (1,N)
 
-🎥 2.11 Aula Gravada
+2.11 Aula Gravada
 
 Recurso audiovisual ligado à disciplina.
 
@@ -167,7 +167,7 @@ Relacionamentos:
 
 Uma disciplina contém várias aulas gravadas.
 
-🔗 3. Relações Importantes
+3. Relações Importantes
 
 Relação	Finalidade
 Usuário → Aluno/Professor/Responsável/Coordenador	Herança / especialização
@@ -177,7 +177,7 @@ Disciplina → Avaliação/Atividade/Aula	Conteúdo pedagógico
 Avaliação → Nota	Desempenho do aluno
 Coordenador → Curso	Gestão acadêmica
 
-🧠 4. Normalização 3FN
+4. Normalização 3FN
 
 O Modelo Conceitual foi traduzido corretamente para o Modelo Lógico, mantendo:
 
