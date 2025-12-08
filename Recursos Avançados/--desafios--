@@ -1,8 +1,8 @@
-🟦 1) PROBLEMAS PARA CRIAR AS VIEWS
+1) PROBLEMAS PARA CRIAR AS VIEWS
 
 A seguir, 3 problemas (um para cada tipo de view exigida):
 
-✅ VIEW 1 — Simples (seleção direta)
+VIEW 1 — Simples (seleção direta)
 
 Problema:
 A coordenação quer visualizar rapidamente uma lista de todos os alunos ativos com nome, matrícula e turma atual, sem precisar fazer SELECT complexo toda vez.
@@ -30,7 +30,7 @@ nome da turma
 
 ano letivo
 
-✅ VIEW 2 — View com JOIN + agregação
+VIEW 2 — View com JOIN + agregação
 
 Problema:
 A direção precisa de um relatório mostrando quantos alunos cada professor atende, baseado nas disciplinas que ele ministra.
@@ -58,7 +58,7 @@ quantidade de disciplinas que ele dá
 
 quantidade total de alunos nas turmas dessas disciplinas
 
-✅ VIEW 3 — View com filtro dinâmico / subconsulta
+VIEW 3 — View com filtro dinâmico / subconsulta
 
 Problema:
 O coordenador quer ver alunos que estão com média abaixo de 6, considerando a média das notas de prova e trabalho.
@@ -90,11 +90,11 @@ média final (subconsulta)
 
 situação (Abaixo da média / OK)
 
-🟦 2) PROBLEMAS PARA CRIAR AS TRIGGERS
+2) PROBLEMAS PARA CRIAR AS TRIGGERS
 
 Aqui estão 3 problemas práticos para criar gatilhos:
 
-✅ TRIGGER 1 — Auditoria (obrigatório)
+TRIGGER 1 — Auditoria (obrigatório)
 
 Problema:
 A instituição precisa registrar qualquer alteração nas notas (prova ou trabalho) para fins de auditoria educacional.
@@ -115,7 +115,7 @@ quando uma nota for ALTERADA (UPDATE)
 
 registre o antes/depois em tb_auditoria_notas
 
-✅ TRIGGER 2 — Regra de negócio (impedir nota inválida)
+TRIGGER 2 — Regra de negócio (impedir nota inválida)
 
 Problema:
 Notas menores que 0 ou maiores que o valor máximo da prova/trabalho são inconsistentes, mas alguns professores estão digitando errado.
@@ -137,7 +137,7 @@ verifica se a nota está dentro do intervalo 0 ≤ nota ≤ valor_maximo
 
 caso contrário, impedirá a operação com erro personalizado
 
-✅ TRIGGER 3 — Registro de criação de atividade
+TRIGGER 3 — Registro de criação de atividade
 
 Problema:
 O coordenador quer saber qual professor criou cada atividade, mas às vezes o professor esquece de registrar.
@@ -157,11 +157,11 @@ verifique se o professor está associado à disciplina
 
 se NÃO estiver, a atividade não pode ser criada
 
-🟦 3) PROBLEMAS PARA FUNCTIONS
+3) PROBLEMAS PARA FUNCTIONS
 
 Agora 3 problemas ideais para functions — todos reais dentro da sua plataforma EAD.
 
-✅ FUNCTION 1 — Calcular média do aluno em uma disciplina
+FUNCTION 1 — Calcular média do aluno em uma disciplina
 
 Problema:
 Professores precisam consultar rapidamente a média de um aluno em uma disciplina.
@@ -183,7 +183,7 @@ Criar uma function com parâmetros:
 Que retorne:
 (media das 3 notas definidas para a disciplina)
 
-✅ FUNCTION 2 — Gerar relatório de desempenho da turma
+FUNCTION 2 — Gerar relatório de desempenho da turma
 
 Problema:
 O coordenador quer saber quantos alunos foram aprovados em cada turma.
@@ -209,7 +209,7 @@ percentual de aprovação
 
 Pode retornar uma tabela ou valores OUT.
 
-✅ FUNCTION 3 — Inserir atividade com verificação
+FUNCTION 3 — Inserir atividade com verificação
 
 Problema:
 Às vezes os coordenadores criam atividades com data_limite antes da data_publicacao, o que gera erro no sistema.
