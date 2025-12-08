@@ -1,8 +1,8 @@
-📘 Explicação do Modelo Lógico – Sistema Acadêmico online
+Explicação do Modelo Lógico – Sistema Acadêmico online
 
 Este modelo lógico representa a estrutura de um sistema acadêmico completo, incluindo gestão de usuários, alunos, professores, turmas, disciplinas, avaliações, atividades e responsáveis. Ele define como as entidades se relacionam e quais informações são armazenadas em cada uma delas.
 
-🧩 1. Usuário
+1. Usuário
 
 Tabela base para autenticação e identificação de qualquer pessoa do sistema.
 
@@ -28,7 +28,7 @@ Relacionamentos:
 
 Pode ser: Aluno, Professor, Coordenador ou Responsável.
 
-👨‍👩‍👦 2. Responsável
+2. Responsável
 
 Armazena os responsáveis legais de alunos.
 
@@ -42,7 +42,7 @@ Relacionamento:
 
 Associado ao Aluno via id_responsavel.
 
-🎓 3. Aluno
+3. Aluno
 
 Representa o estudante e suas informações acadêmicas.
 
@@ -68,7 +68,7 @@ Pertence a turmas via Aluno_turma (N:N)
 
 Recebe notas através da tabela Nota
 
-🧑‍🏫 4. Professor
+4. Professor
 
 Guarda informações dos docentes.
 
@@ -90,7 +90,7 @@ Associado a disciplinas via Professor_disciplina
 
 Participa da oferta de turmas via Turma_disciplina
 
-🧑‍💼 5. Coordenador
+5. Coordenador
 
 Controla cursos e departamentos.
 
@@ -106,7 +106,7 @@ Campos
 
 ● Coordena um Curso
 
-🎓📚 6. Curso
+6. Curso
 
 Representa o curso (ex.: Informática, Administração).
 
@@ -126,7 +126,7 @@ Possui Turmas
 
 Está ligado às disciplinas via Turma_disciplina
 
-🏫 7. Turma
+7. Turma
 
 Grupo de alunos referente a um ano/período letivo.
 
@@ -150,7 +150,7 @@ Associada a Aluno_turma (N:N)
 
 Associada a disciplinas via Turma_disciplina
 
-👨‍🎓🏫 8. Aluno_turma (Associação N:N)
+8. Aluno_turma (Associação N:N)
 
 Histórico e vinculação aluno–turma.
 
@@ -164,7 +164,7 @@ Campos
 
 ● situacao
 
-📘📚 9. Disciplina
+9. Disciplina
 
 Materiais e conteúdos acadêmicos.
 
@@ -188,11 +188,11 @@ Gera Avaliações
 
 Possui Aulas gravadas
 
-🧑‍🏫📚 10. Professor_disciplina (Associação N:N)
+10. Professor_disciplina (Associação N:N)
 
 Relaciona professores às disciplinas que ministram.
 
-🏫📚 11. Turma_disciplina (Associação N:N)
+11. Turma_disciplina (Associação N:N)
 
 Une turmas e disciplinas, indicando quando e onde a disciplina está sendo ofertada.
 
@@ -208,7 +208,7 @@ Campos
 
 ● ano_letivo
 
-📝 12. Avaliação
+12. Avaliação
 
 Provas, trabalhos, atividades avaliativas.
 
@@ -228,7 +228,7 @@ Relacionamentos:
 
 Associada à tabela Nota
 
-📊 13. Nota
+13. Nota
 
 Armazena o valor da nota do aluno em uma avaliação.
 
@@ -242,7 +242,7 @@ Campos
 
 ● valor_nota
 
-🎥 14. Aula_gravada
+14. Aula_gravada
 
 Materiais audiovisuais disponibilizados para a disciplina.
 
