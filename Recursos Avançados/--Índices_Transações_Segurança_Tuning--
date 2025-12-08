@@ -24,8 +24,10 @@ CREATE INDEX idx_fk_aluno_turma ON aluno_turma(id_aluno);
 EXPLAIN ANALYZE SELECT * FROM usuario WHERE nome = 'João Silva';
 
 
+-- ===================================================
+-- 2. TRANSAÇÕES (ACID & ISOLAMENTO)
+-- ===================================================
 
--- ---------------------------------------------------
 -- CENÁRIO A: Transação com Sucesso (COMMIT)
 -- Objetivo: Inserir uma nota e atualizar status do aluno tudo de uma vez.
 -- ---------------------------------------------------
