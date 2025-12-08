@@ -1,9 +1,9 @@
-📘 Documentação das Tabelas – Sistema EAD
+Documentação das Tabelas – Sistema EAD
 
 Este documento explica, de forma clara e organizada, cada tabela criada no banco de dados do projeto de Ensino a Distância (EAD).
 As explicações estão separadas por blocos, seguindo exatamente a ordem do código SQL.
 
-🧩 1) Tabela usuario
+1) Tabela usuario
 
 Guarda todos os usuários do sistema, independentemente da função.
 
@@ -29,7 +29,7 @@ Função Geral
 
 Tabela base que armazena as informações principais de qualquer pessoa no sistema.
 
-🧩 2) Tabela responsavel
+2) Tabela responsavel
 
 Armazena dados de responsáveis vinculados a alunos.
 
@@ -43,11 +43,11 @@ Função Geral
 
 Só existe responsável se existir primeiro como usuário.
 
-🧩 3) Tabela aluno
+3) Tabela aluno
 
 Guarda as informações exclusivas de alunos.
 
-Campos
+Campos:
 
 id_aluno — chave primária, também é usuário.
 
@@ -61,13 +61,13 @@ status_aluno — definido por CHECK (ativo, trancado, concluído).
 
 id_responsavel — referência ao responsável.
 
-Regras
+Regras:
 
 FK garante que o aluno exista primeiro na tabela usuario.
 
 FK garante que o responsável exista.
 
-🧩 4) Tabela professor
+4) Tabela professor
 
 Informações específicas de professores.
 
@@ -85,7 +85,7 @@ Regras
 
 FK garante que o professor exista primeiro na tabela usuario.
 
-🧩 5) Tabela coordenador
+5) Tabela coordenador
 
 Guarda dados de coordenadores.
 
@@ -99,7 +99,7 @@ Regras
 
 FK garante que o coordenador seja um usuário.
 
-🧩 6) Tabela turma
+6) Tabela turma
 
 Representa as turmas cadastradas.
 
@@ -115,7 +115,7 @@ turno — definido por CHECK (manhã, tarde, noite).
 
 status_turma — definido por CHECK (ativa, inativa).
 
-🧩 7) Tabela aluno_turma
+7) Tabela aluno_turma
 
 Relaciona alunos às turmas (matrícula).
 
@@ -135,7 +135,7 @@ Função Geral
 
 Controla em qual turma o aluno está e sua situação escolar.
 
-🧩 8) Tabela disciplina
+8) Tabela disciplina
 
 Cada disciplina pertence a uma turma.
 
@@ -151,7 +151,7 @@ descricao — texto descritivo.
 
 carga_horaria — carga total.
 
-🧩 9) Tabela professor_disciplina
+9) Tabela professor_disciplina
 
 Liga professores às disciplinas que ministram.
 
@@ -165,7 +165,7 @@ Regras
 
 PK composta impede duplicidades.
 
-🧩 10) Tabela aula_gravada
+10) Tabela aula_gravada
 
 Armazena os vídeos das aulas de cada disciplina.
 
@@ -183,7 +183,7 @@ url_video — link do vídeo.
 
 data_postagem — data da postagem (padrão: hoje).
 
-🧩 11) Tabela atividade
+11) Tabela atividade
 
 Guarda atividades postadas nas disciplinas.
 
@@ -203,7 +203,7 @@ data_limite — prazo final.
 
 pontuacao_maxima — valor máximo.
 
-🧩 12) Tabela prova_online
+12) Tabela prova_online
 
 Representa provas de cada disciplina.
 
@@ -221,7 +221,7 @@ data_prova — data marcada.
 
 valor_maximo — pontuação máxima.
 
-🧩 13) Tabela nota_prova
+13) Tabela nota_prova
 
 Registra notas das provas.
 
@@ -235,7 +235,7 @@ id_aluno — FK para o aluno.
 
 nota — nota recebida.
 
-🧩 14) Tabela trabalho
+14) Tabela trabalho
 
 Armazena trabalhos por disciplina.
 
@@ -253,7 +253,7 @@ data_entrega
 
 valor_maximo
 
-🧩 15) Tabela nota_trabalho
+15) Tabela nota_trabalho
 
 Registra as notas dos trabalhos enviados pelos alunos.
 
