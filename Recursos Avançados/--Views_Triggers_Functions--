@@ -138,14 +138,14 @@ RETURNS TABLE (
 BEGIN
     RETURN QUERY
     SELECT 
-        COUNT(*) AS total,
-        COUNT(*) FILTER (WHERE situacao = 'aprovado'),
-        COUNT(*) FILTER (WHERE situacao = 'reprovado'),
+        COUNT(*)::INT AS total,
+        COUNT(*) FILTER (WHERE situacao = 'aprovado')::INT,
+        COUNT(*) FILTER (WHERE situacao = 'reprovado')::INT,
         CASE 
             WHEN COUNT(*) = 0 THEN 0
-            ELSE (COUNT(*) FILTER (WHERE situacao = 'aprovado')::DECIMAL 
-                / COUNT(*)::DECIMAL) * 100
-        END
+            ELSE ((COUNT(*) FILTER (WHERE situacao = 'aprovado')::DECIMAL 
+                / COUNT(*)::DECIMAL) * 100)
+        END::DECIMAL(5,2)
     FROM aluno_turma
     WHERE id_turma = idTurma;
 END;
@@ -190,4 +190,42 @@ BEGIN
     );
 END;
 $$ LANGUAGE plpgsql;
-SELECT registrar_assistencia_aula(101, 22);
+
+
+
+SELECT * FROM vw_alunos_ativos;
+
+SELECT * FROM vw_professor_resumo;
+
+SELECT * FROM vw_medias_alunos;
+
+SELECT * FROM tb_auditoria_notas ORDER BY data_hora DESC;
+
+UPDATE nota
+SET valor_nota = 9.9
+WHERE id_nota = 1;
+
+SELECT * FROM tb_auditoria_notas ORDER BY id DESC;
+
+UPDATE nota
+SET valor_nota = 2
+WHERE id_nota = 2;
+
+UPDATE nota
+SET valor_nota = 999
+WHERE id_nota = 2;
+
+SELECT fn_media_aluno(11, 1);
+
+SELECT * FROM fn_relatorio_turma(2);
+
+SELECT registrar_assistencia_aula(11, 1);
+
+SELECT registrar_assistencia_aula(999, 1);
+
+SELECT registrar_assistencia_aula(11, 999);
+
+SELECT a.*, d.nome_disciplina
+FROM vw_alunos_ativos a
+LEFT JOIN disciplina d 
+    ON d.id_turma = (regexp_replace(a.matricula, '\D', '', 'g')::INT % 10);
