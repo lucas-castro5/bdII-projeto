@@ -3,7 +3,7 @@ FROM usuario
 WHERE tipo_usuario = 'aluno';
 
 SELECT 
-    u.nome AS Nome_Aluno,
+    u.nome AS Nome_Aluno,   
     t.nome_turma AS Turma,
     t.turno AS Turno
 FROM aluno a
